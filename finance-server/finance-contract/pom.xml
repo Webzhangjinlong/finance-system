@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.finance</groupId>
+        <artifactId>finance-server</artifactId>
+        <version>0.1.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>finance-contract</artifactId>
+    <name>finance-contract</name>
+    <description>合同模块：合同台账、合同审批、收付款计划、到期提醒</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.finance</groupId>
+            <artifactId>finance-framework</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.finance</groupId>
+            <artifactId>finance-workflow</artifactId>
+        </dependency>
+    </dependencies>
+</project>

@@ -1,0 +1,11 @@
+# 开发环境配置
+# 注意：DB_PASSWORD 请按本机 PostgreSQL 实际密码修改（骨架阶段未接入数据库连接验证）
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/finance
+    username: postgres
+    password: postgres
+
+logging:
+  level:
+    com.finance: debug

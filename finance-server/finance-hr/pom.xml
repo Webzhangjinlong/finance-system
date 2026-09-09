@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.finance</groupId>
+        <artifactId>finance-server</artifactId>
+        <version>0.1.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>finance-hr</artifactId>
+    <name>finance-hr</name>
+    <description>人事模块：部门/员工档案、考勤、工资核算、社保公积金</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.finance</groupId>
+            <artifactId>finance-framework</artifactId>
+        </dependency>
+    </dependencies>
+</project>
