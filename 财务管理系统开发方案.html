@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>财务管理系统开发方案</title>
+<style>
+  :root{
+    --primary:#1E5AA8; --primary-light:#EAF2FB; --primary-deep:#16427B;
+    --finance:#1E5AA8; --contract:#0F9B8E; --hr:#D97706;
+    --bg:#F5F7FA; --card:#FFFFFF; --border:#E3E8EF;
+    --text:#1F2937; --text2:#6B7280; --line:#E5E7EB;
+    --success:#16A34A; --warn:#D97706; --danger:#DC2626;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'PingFang SC','Microsoft YaHei','Helvetica Neue',Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;font-size:15px;}
+  .container{max-width:1060px;margin:0 auto;padding:0 24px;}
+
+  .hero{background:linear-gradient(135deg,#0F4C81 0%,#1E5AA8 55%,#2E6FBF 100%);color:#fff;padding:56px 0 48px;position:relative;overflow:hidden;}
+  .hero::after{content:'';position:absolute;right:-120px;top:-120px;width:340px;height:340px;border-radius:50%;background:rgba(255,255,255,0.08);}
+  .hero .tag{display:inline-block;background:rgba(255,255,255,0.16);border:1px solid rgba(255,255,255,0.35);padding:4px 14px;border-radius:20px;font-size:13px;letter-spacing:1px;margin-bottom:18px;}
+  .hero h1{font-size:36px;font-weight:700;letter-spacing:1px;margin-bottom:12px;}
+  .hero p{font-size:15.5px;opacity:0.92;max-width:800px;}
+  .hero .meta{margin-top:22px;display:flex;gap:26px;flex-wrap:wrap;font-size:14px;opacity:0.9;}
+  .hero .meta b{font-size:17px;display:block;opacity:1;}
+
+  .toc{background:var(--card);border:1px solid var(--border);border-radius:12px;margin:28px 0;padding:20px 26px;}
+  .toc h3{font-size:16px;margin-bottom:12px;color:var(--primary);}
+  .toc ol{list-style:none;counter-reset:toc;display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:6px 24px;}
+  .toc li{counter-increment:toc;font-size:14px;color:var(--text2);}
+  .toc li::before{content:counter(toc,decimal-leading-zero);color:var(--primary);font-weight:600;margin-right:8px;}
+
+  section{margin:40px 0;}
+  .sec-head{display:flex;align-items:center;gap:14px;margin-bottom:8px;}
+  .sec-num{flex:0 0 auto;width:42px;height:42px;border-radius:10px;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:17px;}
+  .sec-head h2{font-size:22px;font-weight:700;color:var(--text);}
+  .sec-sub{color:var(--text2);font-size:14px;margin:0 0 20px 56px;}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:22px 26px;margin-bottom:18px;}
+  .card h3{font-size:16px;margin-bottom:10px;}
+  .card p{color:#374151;font-size:14.5px;margin-bottom:8px;}
+  .card ul,.card ol{margin:6px 0 10px 20px;}
+  .card li{font-size:14.5px;margin:4px 0;color:#374151;}
+
+  .pill{display:inline-block;padding:2px 10px;border-radius:12px;font-size:12.5px;font-weight:500;margin:2px 4px 2px 0;}
+  .pill-fin{background:#E7F0FB;color:#1E5AA8;}
+  .pill-ct{background:#E0F4F1;color:#0F9B8E;}
+  .pill-hr{background:#FDF1E0;color:#D97706;}
+  .pill-base{background:#F1F3F7;color:#4B5563;}
+  .p0{background:#FEE2E2;color:#991B1B;} .p1{background:#FEF3C7;color:#92400E;} .p2{background:#DCFCE7;color:#166534;}
+
+  table{width:100%;border-collapse:collapse;font-size:13.5px;background:var(--card);}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top;}
+  th{background:#F3F6FA;color:var(--primary-deep);font-weight:600;white-space:nowrap;}
+  tr:nth-child(even) td{background:#FAFBFC;}
+  .center{text-align:center;}
+
+  pre{background:#0F172A;color:#E2E8F0;border-radius:10px;padding:16px 18px;font-size:12.5px;line-height:1.65;overflow-x:auto;margin:10px 0;}
+  code{font-family:Consolas,'Courier New',monospace;}
+  .inline-code{background:#EEF1F5;border-radius:4px;padding:1px 6px;font-size:12.5px;color:#B45309;}
+
+  .timeline{position:relative;padding-left:26px;}
+  .timeline::before{content:'';position:absolute;left:7px;top:6px;bottom:6px;width:2px;background:var(--line);}
+  .tl-item{position:relative;margin-bottom:18px;}
+  .tl-item::before{content:'';position:absolute;left:-25px;top:6px;width:13px;height:13px;border-radius:50%;background:var(--primary);border:3px solid #fff;box-shadow:0 0 0 2px var(--primary);}
+  .tl-item h4{font-size:15px;color:var(--primary-deep);}
+  .tl-item .dur{font-size:12.5px;color:var(--text2);}
+  .tl-item ul{margin:6px 0 0 18px;}
+  .tl-item li{font-size:13.5px;color:#374151;margin:3px 0;}
+
+  .note{background:#FFFBEB;border:1px solid #FDE68A;border-radius:8px;padding:12px 16px;font-size:13.5px;color:#92400E;margin-top:12px;}
+  .tip{background:#EFF6FF;border:1px solid #BFDBFE;border-radius:8px;padding:12px 16px;font-size:13.5px;color:#1E40AF;margin-top:12px;}
+  .foot{margin:44px 0 20px;text-align:center;color:var(--text2);font-size:13px;}
+  @media(max-width:640px){.hero h1{font-size:28px;} .sec-sub{margin-left:0;}}
+</style>
+</head>
+<body>
+
+<!-- ===== Hero ===== -->
+<div class="hero">
+  <div class="container">
+    <span class="tag">开发实施方案 · V1.0</span>
+    <h1>财务管理系统开发方案</h1>
+    <p>基于《财务管理系统设计方案》，输出可落地执行的开发方案：<b>工程结构 → 数据库设计 → 功能清单 → 接口设计 → 核心难点实现 → 排期 → 测试部署</b>，技术栈定稿为 <b>Vue 3 + Spring Boot + PostgreSQL 16</b>。</p>
+    <div class="meta">
+      <div><b>前后端分离</b>单体架构</div>
+      <div><b>5 大</b>后端业务模块</div>
+      <div><b>25+</b>核心数据表</div>
+      <div><b>约 4 个月</b>开发周期（估算）</div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+<div class="toc">
+  <h3>开发方案目录</h3>
+  <ol>
+    <li>项目概览与技术栈定稿</li>
+    <li>总体架构与工程结构</li>
+    <li>数据库设计（PostgreSQL 16）</li>
+    <li>功能开发清单与优先级</li>
+    <li>核心接口设计（RESTful API）</li>
+    <li>核心难点实现思路</li>
+    <li>开发排期与里程碑</li>
+    <li>测试方案</li>
+    <li>部署与运维方案</li>
+    <li>风险与应对</li>
+    <li>多公司（多账套）支持</li>
+  </ol>
+</div>
+
+<!-- ===== 1 概览 ===== -->
+<section id="s1">
+  <div class="sec-head"><div class="sec-num">01</div><h2>项目概览与技术栈定稿</h2></div>
+  <p class="sec-sub">确认开发目标、范围边界与最终技术选型</p>
+
+  <div class="card">
+    <h3>1.1 开发目标与范围</h3>
+    <ul>
+      <li>交付一套前后端分离的 Web 财务管理系统，覆盖<b>财务管理、合同管理、人事管理</b>三大模块；</li>
+      <li>核心目标：<b>业财一体化</b>——业务单据（报销/合同收付款/工资）审批后自动生成记账凭证；</li>
+      <li>范围：PC 端优先，移动端（H5 查看待办/工资条）作为二期；</li>
+      <li>不包含（二期可选）：发票税局验真对接、银行代发对接、电子签章、绩效管理。</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>1.2 技术栈定稿</h3>
+    <table>
+      <tr><th>层次</th><th>选型</th><th>版本建议</th><th>用途说明</th></tr>
+      <tr><td>前端框架</td><td>Vue 3 + Vite + Pinia + Vue Router</td><td>Vue 3.4+ / Vite 5</td><td>SPA 管理后台</td></tr>
+      <tr><td>UI 组件库</td><td>Element Plus</td><td>2.x</td><td>表单/表格/弹窗等管理组件</td></tr>
+      <tr><td>图表</td><td>ECharts</td><td>5.x</td><td>报表与经营驾驶舱</td></tr>
+      <tr><td>后端框架</td><td>Spring Boot</td><td>3.x（JDK 17）</td><td>RESTful 服务</td></tr>
+      <tr><td>持久层</td><td>MyBatis-Plus</td><td>3.5.x</td><td>ORM + 分页 + 逻辑删除</td></tr>
+      <tr><td>数据库</td><td><b>PostgreSQL</b></td><td><b>16.x</b></td><td>主库（NUMERIC / JSONB / CHECK / 触发器）</td></tr>
+      <tr><td>缓存/会话</td><td>Redis</td><td>7.x</td><td>Token 会话、字典缓存、验证码</td></tr>
+      <tr><td>认证鉴权</td><td>Spring Security + JWT</td><td>—</td><td>RBAC + 数据权限拦截</td></tr>
+      <tr><td>审批流</td><td>Flowable</td><td>7.x</td><td>审批流引擎（合同/报销/付款审批）</td></tr>
+      <tr><td>文件存储</td><td>MinIO / OSS</td><td>—</td><td>合同附件、发票影像、导入模板</td></tr>
+      <tr><td>任务调度</td><td>Spring @Scheduled / XXL-Job</td><td>—</td><td>到期提醒、逾期扫描定时任务</td></tr>
+      <tr><td>部署</td><td>Docker + Docker Compose + Nginx</td><td>—</td><td>容器化部署、反向代理</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ===== 2 架构 ===== -->
+<section id="s2">
+  <div class="sec-head"><div class="sec-num">02</div><h2>总体架构与工程结构</h2></div>
+  <p class="sec-sub">前后端分离 + 后端按业务域分包（模块化单体），便于拆分与维护</p>
+
+  <div class="card">
+    <h3>2.1 工程结构（Git 仓库）</h3>
+    <pre><code>finance-system/                        # 项目根（monorepo）
+├── finance-web/                       # 前端 Vue3 工程
+│   ├── src/
+│   │   ├── api/                       # 接口封装（按模块）
+│   │   ├── views/                     # 页面（system/finance/contract/hr）
+│   │   ├── router/  stores/  utils/   # 路由 / Pinia / 工具（axios、权限指令）
+│   │   └── components/                # 通用组件（表单、审批弹窗、科目树）
+│   └── package.json
+├── finance-server/                    # 后端 Spring Boot 工程
+│   ├── finance-common/                # 公共：统一返回、异常、工具、常量
+│   ├── finance-framework/             # 框架：Security/JWT、RBAC、Redis、数据权限
+│   ├── finance-system/                # 系统管理：用户/角色/菜单/字典/日志
+│   ├── finance-finance/               # 财务域：科目/凭证/账簿/报销/收付款/报表
+│   ├── finance-contract/              # 合同域：台账/审批/收付款计划/提醒
+│   ├── finance-hr/                    # 人事域：员工/考勤/薪酬/社保
+│   └── finance-workflow/              # 审批流（Flowable 封装）
+├── deploy/                            # Docker Compose、Nginx 配置、SQL 初始化
+└── docs/                              # 设计/开发文档、接口文档</code></pre>
+  </div>
+
+  <div class="card">
+    <h3>2.2 后端分层（每个业务域内部）</h3>
+    <p style="font-size:13.5px;color:var(--text2);">Controller（接口）→ Service（业务）→ Mapper（数据访问），跨域调用走 Service 层接口，避免循环依赖；凭证生成等跨域逻辑放在 <b>finance-finance</b> 内的「凭证引擎」组件，对外提供事件/接口。</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
+      <span class="pill pill-base">Controller：校验 + 参数 + 权限注解</span>
+      <span class="pill pill-base">Service：业务规则 + 事务</span>
+      <span class="pill pill-base">Mapper：MyBatis-Plus + XML 复杂查询</span>
+      <span class="pill pill-base">Domain：实体 + 枚举 + DTO/VO</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>2.3 关键架构决策</h3>
+    <ul>
+      <li><b>模块化单体</b>：不拆分微服务，降低运维成本；按业务域分包，后续可平滑拆出独立服务；</li>
+      <li><b>资金类操作强事务</b>：收付款、凭证生成、薪酬发放用 <span class="inline-code">@Transactional</span> + 幂等键防重复；</li>
+      <li><b>业务事件解耦</b>：单据审批通过 → 发布事件 → 凭证引擎监听生成凭证，避免强耦合；</li>
+      <li><b>数据权限</b>：通过 MyBatis-Plus 拦截器按角色数据范围（全部/本部门/本人）自动注入过滤条件。</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ===== 3 数据库 ===== -->
+<section id="s3">
+  <div class="sec-head"><div class="sec-num">03</div><h2>数据库设计（PostgreSQL 16）</h2></div>
+  <p class="sec-sub">核心表 25+ 张，金额统一 NUMERIC(18,2)，统一公共字段与逻辑删除</p>
+
+  <div class="card">
+    <h3>3.1 公共设计约定</h3>
+    <ul>
+      <li><b>金额</b>：一律 <span class="inline-code">NUMERIC(18,2)</span>，禁止用 float/double；</li>
+      <li><b>主键</b>：<span class="inline-code">BIGINT GENERATED ALWAYS AS IDENTITY</span>；</li>
+      <li><b>公共字段</b>：<span class="inline-code">create_by / create_time / update_by / update_time / deleted</span>（逻辑删除）；</li>
+      <li><b>时间</b>：<span class="inline-code">TIMESTAMP WITH TIME ZONE</span>；</li>
+      <li><b>辅助核算</b>：凭证分录表带可空外键 <span class="inline-code">department_id / customer_id / supplier_id / contract_id</span>，支持多维统计。</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>3.2 核心表清单</h3>
+    <table>
+      <tr><th>域</th><th>表名</th><th>关键字段/说明</th></tr>
+      <tr><td rowspan="6">系统/主数据</td><td>sys_user / sys_role / sys_user_role / sys_role_menu</td><td>RBAC 核心四表；用户-角色、角色-权限多对多</td></tr>
+      <tr><td>sys_menu</td><td>菜单/按钮权限点（type: 目录/菜单/按钮）</td></tr>
+      <tr><td>sys_dict_type / sys_dict_data</td><td>字典（合同类型、费用类型等）</td></tr>
+      <tr><td>sys_operation_log</td><td>操作日志（审计留痕）</td></tr>
+      <tr><td>base_department</td><td>部门（含数据权限范围依据）</td></tr>
+      <tr><td>base_customer / base_supplier</td><td>客户 / 供应商主数据</td></tr>
+      <tr><td rowspan="7">财务域</td><td>fin_account_subject</td><td>会计科目（编码、名称、类别、借贷方向、辅助核算项）</td></tr>
+      <tr><td>fin_voucher</td><td>凭证主表（凭证号、期间、日期、摘要、状态、来源单据）</td></tr>
+      <tr><td>fin_voucher_entry</td><td>凭证分录（科目、方向、金额、辅助核算外键）；<b>CHECK 借贷平衡</b></td></tr>
+      <tr><td>fin_receivable_payable</td><td>应收应付（往来单位、方向、金额、核销状态、账龄）</td></tr>
+      <tr><td>fin_payment_receipt</td><td>收付款单（关联应收应付/合同、银行账户）</td></tr>
+      <tr><td>fin_expense_claim / fin_expense_item</td><td>费用报销主表 + 明细（类型、金额、发票号）</td></tr>
+      <tr><td>fin_bank_account / fin_invoice / fin_budget</td><td>银行账户 / 发票 / 预算（二期）</td></tr>
+      <tr><td rowspan="4">合同域</td><td>ct_contract</td><td>合同主表（类型、签约方、金额、起止日期、状态）</td></tr>
+      <tr><td>ct_contract_payment_plan</td><td>收付款计划（期次、金额、计划/实际日期、状态、关联应收应付）</td></tr>
+      <tr><td>ct_contract_milestone</td><td>合同里程碑（二期）</td></tr>
+      <tr><td>ct_contract_attachment</td><td>合同附件（MinIO 地址）</td></tr>
+      <tr><td rowspan="4">人事域</td><td>hr_employee</td><td>员工（工号、部门、岗位、入职/离职、合同到期日）</td></tr>
+      <tr><td>hr_attendance</td><td>考勤（出勤/请假/加班）</td></tr>
+      <tr><td>hr_salary</td><td>工资（月份、应发、个税、实发、状态、凭证号）</td></tr>
+      <tr><td>hr_social_security</td><td>社保公积金（基数、比例、单位/个人金额）</td></tr>
+      <tr><td rowspan="3">流程/公共</td><td>wf_definition / wf_instance / wf_task</td><td>Flowable 审批流程定义/实例/任务（可配合业务表 status）</td></tr>
+      <tr><td>fin_voucher_rule</td><td><b>凭证映射规则表</b>（单据类型→借贷科目→辅助核算）</td></tr>
+      <tr><td>sys_notice / sys_message</td><td>通知公告 / 站内消息</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>3.3 关键 DDL 示例（凭证表）</h3>
+    <pre><code>CREATE TABLE fin_voucher (
+    id            BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    voucher_no    VARCHAR(32)  NOT NULL,          -- 凭证号（期间+序列）
+    period        VARCHAR(7)   NOT NULL,          -- 会计期间 2026-09
+    voucher_date  DATE         NOT NULL,
+    summary       VARCHAR(200),
+    total_debit   NUMERIC(18,2) NOT NULL DEFAULT 0,
+    total_credit  NUMERIC(18,2) NOT NULL DEFAULT 0,
+    status        VARCHAR(20)  NOT NULL DEFAULT 'DRAFT', -- DRAFT/AUDITED/BOOKED/REVERSED
+    source_type   VARCHAR(30),                    -- 来源：MANUAL/EXPENSE/CONTRACT/SALARY
+    source_id     BIGINT,                         -- 来源单据
+    create_by     BIGINT, create_time TIMESTAMPTZ,
+    update_by     BIGINT, update_time TIMESTAMPTZ,
+    deleted       SMALLINT DEFAULT 0,
+    CONSTRAINT uk_voucher_period_no UNIQUE (period, voucher_no),
+    CONSTRAINT ck_voucher_balance CHECK (total_debit = total_credit)
+);</code></pre>
+  </div>
+</section>
+
+<!-- ===== 4 功能清单 ===== -->
+<section id="s4">
+  <div class="sec-head"><div class="sec-num">04</div><h2>功能开发清单与优先级</h2></div>
+  <p class="sec-sub">P0=一期必须；P1=一期应有；P2=二期可选。优先级以「先跑通业财主线」为准</p>
+
+  <div class="card">
+    <h3>4.1 系统与公共</h3>
+    <table>
+      <tr><th style="width:90px;">优先级</th><th>功能</th><th>说明</th></tr>
+      <tr><td><span class="pill p0">P0</span></td><td>登录认证 / 用户 / 角色 / 菜单权限</td><td>JWT 登录、RBAC 功能权限、按钮级权限指令</td></tr>
+      <tr><td><span class="pill p0">P0</span></td><td>数据权限</td><td>全部 / 本部门 / 本人 范围过滤</td></tr>
+      <tr><td><span class="pill p0">P0</span></td><td>字典 / 操作日志 / 个人中心</td><td>字典管理、审计留痕、改密</td></tr>
+      <tr><td><span class="pill p1">P1</span></td><td>审批流引擎接入</td><td>Flowable 审批（合同/报销/付款）</td></tr>
+      <tr><td><span class="pill p1">P1</span></td><td>消息通知</td><td>站内消息 + 待办提醒</td></tr>
+      <tr><td><span class="pill p2">P2</span></td><td>经营驾驶舱</td><td>资金/往来/成本/合同视图汇总</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>4.2 财务管理模块</h3>
+    <table>
+      <tr><th style="width:90px;">优先级</th><th>功能</th><th>说明</th></tr>
+      <tr><td><span class="pill p0">P0</span></td><td>会计科目管理</td><td>科目树、增删改、停用</td></tr>
+      <tr><td><span class="pill p0">P0</span></td><td>凭证管理</td><td>录入/审核/过账、凭证号自动生成、借贷平衡校验</td></tr>
+      <tr><td><span class="pill p0">P0</span></td><td>账簿查询</td><td>总账、明细账、日记账（按期间/科目）</td></tr>
+      <tr><td><span class="pill p0">P0</span></td><td>期末结账</td><td>期间锁定、结转损益、不可逆（只可反结账）</td></tr>
+      <tr><td><span class="pill p0">P0</span></td><td>三大财务报表</td><td>资产负债表、利润表、现金流量表</td></tr>
+      <tr><td><span class="pill p1">P1</span></td><td>费用报销</td><td>提交→审批→打款→自动凭证</td></tr>
+      <tr><td><span class="pill p1">P1</span></td><td>收付款与应收应付</td><td>收付款单、往来台账、核销、账龄</td></tr>
+      <tr><td><span class="pill p1">P1</span></td><td>凭证映射引擎</td><td>业务单据自动生成凭证（核心）</td></tr>
+      <tr><td><span class="pill p2">P2</span></td><td>发票管理 / 预算管理</td><td>发票登记统计 / 预算编制执行</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>4.3 合同管理模块</h3>
+    <table>
+      <tr><th style="width:90px;">优先级</th><th>功能</th><th>说明</th></tr>
+      <tr><td><span class="pill p0">P0</span></td><td>合同台账</td><td>登记、分类、编码、状态流转</td></tr>
+      <tr><td><span class="pill p0">P0</span></td><td>合同审批</td><td>提交→审核（按金额分级），审批通过自动生效</td></tr>
+      <tr><td><span class="pill p0">P0</span></td><td>收付款计划</td><td>按合同生成计划，联动财务应收应付</td></tr>
+      <tr><td><span class="pill p1">P1</span></td><td>到期 / 收付款提醒</td><td>定时任务扫描 + 待办/消息</td></tr>
+      <tr><td><span class="pill p1">P1</span></td><td>附件归档</td><td>MinIO 上传下载</td></tr>
+      <tr><td><span class="pill p2">P2</span></td><td>电子签章 / 履约里程碑</td><td>外部对接 / 进度管理</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>4.4 人事管理模块</h3>
+    <table>
+      <tr><th style="width:90px;">优先级</th><th>功能</th><th>说明</th></tr>
+      <tr><td><span class="pill p0">P0</span></td><td>员工档案 / 部门管理</td><td>基本信息、入职离职、劳动合同到期提醒</td></tr>
+      <tr><td><span class="pill p0">P0</span></td><td>工资核算与工资条</td><td>工资计算（应发/个税/实发）、审核、工资条、自动凭证</td></tr>
+      <tr><td><span class="pill p1">P1</span></td><td>考勤管理</td><td>月度出勤/请假/加班汇总</td></tr>
+      <tr><td><span class="pill p1">P1</span></td><td>社保公积金</td><td>基数比例维护、月度核算</td></tr>
+      <tr><td><span class="pill p2">P2</span></td><td>绩效 / 银行代发</td><td>二期</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ===== 5 接口 ===== -->
+<section id="s5">
+  <div class="sec-head"><div class="sec-num">05</div><h2>核心接口设计（RESTful API）</h2></div>
+  <p class="sec-sub">统一返回体 Result&lt;T&gt;；鉴权头 Authorization: Bearer &lt;token&gt;；按模块前缀分路径</p>
+
+  <div class="card">
+    <h3>5.1 认证与系统</h3>
+    <table>
+      <tr><th>方法</th><th>路径</th><th>说明</th></tr>
+      <tr><td>POST</td><td>/api/auth/login</td><td>登录，返回 JWT 与用户信息</td></tr>
+      <tr><td>GET</td><td>/api/auth/profile</td><td>当前用户信息 + 权限码 + 数据范围</td></tr>
+      <tr><td>GET/POST/PUT/DELETE</td><td>/api/system/user, /role, /menu, /dict</td><td>用户/角色/菜单/字典 CRUD</td></tr>
+      <tr><td>GET</td><td>/api/system/log</td><td>操作日志分页查询</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>5.2 财务域</h3>
+    <table>
+      <tr><th>方法</th><th>路径</th><th>说明</th></tr>
+      <tr><td>GET/POST</td><td>/api/finance/subject</td><td>科目列表 / 新增</td></tr>
+      <tr><td>GET/POST</td><td>/api/finance/voucher</td><td>凭证分页 / 新增</td></tr>
+      <tr><td>PUT</td><td>/api/finance/voucher/{id}/audit</td><td>凭证审核（DRAFT→AUDITED）</td></tr>
+      <tr><td>PUT</td><td>/api/finance/voucher/{id}/book</td><td>凭证过账（AUDITED→BOOKED）</td></tr>
+      <tr><td>PUT</td><td>/api/finance/voucher/{id}/reverse</td><td>红字冲销</td></tr>
+      <tr><td>GET</td><td>/api/finance/book/{type}</td><td>账簿查询（general/detail/journal）</td></tr>
+      <tr><td>PUT</td><td>/api/finance/period/close</td><td>期末结账</td></tr>
+      <tr><td>GET</td><td>/api/finance/report/balance-sheet 等</td><td>三大报表</td></tr>
+      <tr><td>GET/POST</td><td>/api/finance/expense</td><td>报销单分页 / 提交</td></tr>
+      <tr><td>PUT</td><td>/api/finance/expense/{id}/approve</td><td>报销审批（驱动审批流）</td></tr>
+      <tr><td>GET/POST</td><td>/api/finance/payment, /api/finance/receivable</td><td>收付款单 / 应收应付</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>5.3 合同域 与 人事域</h3>
+    <table>
+      <tr><th>方法</th><th>路径</th><th>说明</th></tr>
+      <tr><td>GET/POST</td><td>/api/contract</td><td>合同列表 / 新增（起草）</td></tr>
+      <tr><td>POST</td><td>/api/contract/{id}/submit</td><td>提交审批</td></tr>
+      <tr><td>GET</td><td>/api/contract/{id}/payment-plans</td><td>收付款计划（按合同）</td></tr>
+      <tr><td>GET</td><td>/api/contract/reminders</td><td>到期/收款/付款待办提醒</td></tr>
+      <tr><td>GET/POST</td><td>/api/hr/employee, /api/hr/department</td><td>员工 / 部门 CRUD</td></tr>
+      <tr><td>POST</td><td>/api/hr/salary/calculate</td><td>工资核算（批量）</td></tr>
+      <tr><td>GET</td><td>/api/hr/salary/{id}/slip</td><td>本人工资条</td></tr>
+    </table>
+    <p style="font-size:12.5px;color:var(--text2);margin-top:6px;">完整接口清单按「模块 → 页面 → 接口」在联调前输出 YApi/Apifox 文档，此处列主流程关键接口。</p>
+  </div>
+</section>
+
+<!-- ===== 6 难点 ===== -->
+<section id="s6">
+  <div class="sec-head"><div class="sec-num">06</div><h2>核心难点实现思路</h2></div>
+  <p class="sec-sub">五个决定系统质量的关键点，先讲清思路再动手</p>
+
+  <div class="card">
+    <h3>6.1 凭证生成引擎（单据→凭证）</h3>
+    <ol>
+      <li><b>规则表 fin_voucher_rule</b>：配置「单据类型 + 费用类型 → 借方科目 / 贷方科目 / 辅助核算项」；</li>
+      <li><b>事件驱动</b>：业务单据审批通过 → 发布 <span class="inline-code">BusinessDocApprovedEvent</span>（含 sourceType/sourceId/金额/辅助信息）；</li>
+      <li><b>引擎生成</b>：监听事件 → 查规则 → 组装分录 → 写入凭证草稿（status=DRAFT），来源字段回填；</li>
+      <li><b>幂等</b>：以 <span class="inline-code">source_type + source_id</span> 建唯一约束，防止重复生成；</li>
+      <li><b>人工兜底</b>：未配置规则或特殊情况走手工凭证，不阻塞业务。</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <h3>6.2 凭证号连续性与结账</h3>
+    <ul>
+      <li>凭证号 = 期间 + 序列，用 <span class="inline-code">seq_voucher_no</span> 序列保证并发下不重号；</li>
+      <li>结账：<b>校验</b>（借贷平衡、未过账凭证、资产=负债+权益）→ <b>锁定期间</b>（期间表 is_closed）→ 已结账期间凭证只读；</li>
+      <li>改错：已过账凭证不允许直接修改，走<b>红字冲销 + 蓝字重录</b>，保留审计痕迹。</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>6.3 审批流（Flowable）与业务解耦</h3>
+    <ul>
+      <li>流程定义按业务配置（合同审批、报销审批、付款审批），用<b>网关按金额分级路由</b>；</li>
+      <li>审批动作通过统一 <span class="inline-code">WorkflowService.complete()</span>，回调更新业务单据 status 并发布事件；</li>
+      <li>员工/角色变化不重开流程：任务节点绑定「角色 + 数据范围」，实时取当前审批人。</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>6.4 收付款与合同联动</h3>
+    <ul>
+      <li>合同收付款计划到期 → 生成应收应付 → 出纳登记收付款 → <b>核销</b>应收应付并回写计划状态 → 凭证引擎生成资金凭证；</li>
+      <li>核销规则：支持部分核销、多单核销一笔，账龄按「剩余未核销金额 + 到期日」计算。</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>6.5 定时提醒任务</h3>
+    <table>
+      <tr><th>任务</th><th>频率</th><th>逻辑</th></tr>
+      <tr><td>合同到期提醒</td><td>每日</td><td>到期前 30 天 / 已到期未处理 → 站内消息</td></tr>
+      <tr><td>收付款节点提醒</td><td>每日</td><td>计划日期前 7 天 → 提醒责任人</td></tr>
+      <tr><td>逾期应收扫描</td><td>每日</td><td>账龄超期 → 更新预警状态 + 消息</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ===== 7 排期 ===== -->
+<section id="s7">
+  <div class="sec-head"><div class="sec-num">07</div><h2>开发排期与里程碑</h2></div>
+  <p class="sec-sub">按「2 后端 + 1 前端 + 0.5 测试」的 1 个团队估算（约 4 个月），可按实际人手等比调整</p>
+
+  <div class="card">
+    <div class="timeline">
+      <div class="tl-item">
+        <h4>阶段 0 · 基建（第 1–2 周）</h4>
+        <div class="dur">脚手架 · 环境 · 数据库初始化</div>
+        <ul>
+          <li>前后端脚手架、Git 仓库、CI（编译/静态检查）</li>
+          <li>Docker 环境（PostgreSQL 16 / Redis / MinIO）、建库建表 DDL 落地</li>
+          <li>统一返回体、异常处理、日志、JWT 登录 + RBAC 框架</li>
+          <li><b>里程碑</b>：能登录、菜单按角色渲染</li>
+        </ul>
+      </div>
+      <div class="tl-item">
+        <h4>阶段 1 · 系统 + 财务核心（第 3–7 周）</h4>
+        <div class="dur">系统管理 · 科目 · 凭证 · 账簿 · 报表</div>
+        <ul>
+          <li>用户/角色/菜单/字典/操作日志、数据权限</li>
+          <li>科目管理、凭证录入/审核/过账、凭证号序列、账簿查询</li>
+          <li>期末结账、三大财务报表</li>
+          <li><b>里程碑</b>：完成一个月手工记账闭环（MVP 记账）</li>
+        </ul>
+      </div>
+      <div class="tl-item">
+        <h4>阶段 2 · 业务单据 + 凭证引擎（第 8–12 周）</h4>
+        <div class="dur">报销 · 收付款 · 应收应付 · 凭证映射引擎</div>
+        <ul>
+          <li>费用报销全流程（含审批流接入）</li>
+          <li>收付款单、应收应付、核销、账龄</li>
+          <li>凭证映射引擎（规则配置 + 事件 + 自动生成）+ 合同台账/审批/收付款计划</li>
+          <li><b>里程碑</b>：报销、合同收付款自动生成凭证（业财主线打通）</li>
+        </ul>
+      </div>
+      <div class="tl-item">
+        <h4>阶段 3 · 人事 + 提醒 + 驾驶舱（第 13–16 周）</h4>
+        <div class="dur">员工 · 工资 · 考勤 · 定时提醒 · 驾驶舱</div>
+        <ul>
+          <li>员工档案、部门、工资核算与工资条（含自动凭证）</li>
+          <li>考勤管理、社保公积金（基础）</li>
+          <li>合同到期/收付款/逾期应收定时提醒；经营驾驶舱</li>
+          <li><b>里程碑</b>：三大模块功能齐备</li>
+        </ul>
+      </div>
+      <div class="tl-item">
+        <h4>阶段 4 · 联调上线（第 17–18 周）</h4>
+        <div class="dur">联调 · 测试 · 数据迁移 · 试运行</div>
+        <ul>
+          <li>端到端联调、安全加固（HTTPS/限流/审计）、性能冒烟</li>
+          <li>历史数据导入（期初余额、科目、员工 Excel 模板）</li>
+          <li>试运行 1 个会计期间 → 修复 → 正式上线</li>
+          <li><b>里程碑</b>：正式上线</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 8 测试 ===== -->
+<section id="s8">
+  <div class="sec-head"><div class="sec-num">08</div><h2>测试方案</h2></div>
+  <p class="sec-sub">财务系统以「数据正确性」为第一质量目标，测试分层设计</p>
+
+  <div class="card">
+    <h3>8.1 测试分层</h3>
+    <table>
+      <tr><th>层级</th><th>工具</th><th>覆盖重点</th></tr>
+      <tr><td>单元测试</td><td>JUnit 5 + Mockito</td><td>凭证生成引擎、金额/个税计算、凭证号序列、映射规则匹配</td></tr>
+      <tr><td>接口测试</td><td>Apifox / REST Assured</td><td>全部 REST API 的正向/异常路径</td></tr>
+      <tr><td>集成测试</td><td>Testcontainers（PG）</td><td>事务回滚、并发凭证号不重号、审批流回调</td></tr>
+      <tr><td>前端测试</td><td>Vitest + Vue Test Utils</td><td>关键表单校验、权限按钮显隐</td></tr>
+      <tr><td>验收测试</td><td>人工 + 用例清单</td><td>按设计方案业务流程逐条走查</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>8.2 关键测试用例（财务正确性）</h3>
+    <ul>
+      <li>凭证录入：借贷不等不允许保存（数据库 CHECK 兜底 + 前端校验）；</li>
+      <li>凭证号：并发 100 笔同时生成不重号、不跳号；</li>
+      <li>映射引擎：同一单据重复提交事件不产生第二张凭证（幂等）；</li>
+      <li>结账：已结账期间凭证不可新增/修改；结账前未过账凭证拦截；</li>
+      <li>权限：普通员工调用他人工资条接口返回 403；数据权限过滤生效；</li>
+      <li>报表：三大报表勾稽关系（资产=负债+权益、现金流入流出=净变动）。</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ===== 9 部署 ===== -->
+<section id="s9">
+  <div class="sec-head"><div class="sec-num">09</div><h2>部署与运维方案</h2></div>
+  <p class="sec-sub">Docker Compose 一键编排，数据安全优先</p>
+
+  <div class="card">
+    <h3>9.1 部署拓扑</h3>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <span class="pill pill-base">Nginx（前端静态 + 反向代理 /api）</span>
+      <span class="pill pill-base">finance-server（Spring Boot，多实例可选）</span>
+      <span class="pill pill-base">PostgreSQL 16</span>
+      <span class="pill pill-base">Redis</span>
+      <span class="pill pill-base">MinIO</span>
+      <span class="pill pill-base">（可选）xxl-job 调度中心</span>
+    </div>
+    <pre><code># docker-compose.yml 核心服务（示意）
+services:
+  postgres:   image: postgres:16   volumes: [pgdata:/var/lib/postgresql/data]  # 挂载持久化
+  redis:      image: redis:7-alpine
+  minio:      image: minio/minio   command: server /data
+  server:     build: ./finance-server  depends_on: [postgres, redis, minio]
+  web:        image: nginx:alpine  volumes: [./finance-web/dist:/usr/share/nginx/html]</code></pre>
+  </div>
+
+  <div class="card">
+    <h3>9.2 数据安全与运维</h3>
+    <table>
+      <tr><th>项</th><th>方案</th></tr>
+      <tr><td>备份</td><td>pg_dump 每日全量 + WAL 归档（PITR），保留 30 天；恢复演练每季度一次</td></tr>
+      <tr><td>密码安全</td><td>BCrypt 加密、登录失败锁定、JWT 过期 + 刷新</td></tr>
+      <tr><td>审计</td><td>操作日志全量留痕，关键操作（凭证/付款/薪酬）不可删除</td></tr>
+      <tr><td>监控</td><td>Spring Boot Actuator + 日志（结构化），磁盘/内存/连接数告警</td></tr>
+      <tr><td>上线策略</td><td>灰度发布（先内测用户 → 全量）；回滚保留上一版本镜像</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ===== 10 风险 ===== -->
+<section id="s10">
+  <div class="sec-head"><div class="sec-num">10</div><h2>风险与应对</h2></div>
+  <p class="sec-sub">提前识别三类主要风险，并给出应对策略</p>
+
+  <div class="card">
+    <table>
+      <tr><th>风险</th><th>影响</th><th>应对</th></tr>
+      <tr><td>凭证映射规则配置复杂，易出错</td><td>凭证错误 → 账务混乱</td><td>一期只做"固定模板"式简化映射，规则配置页加预览与试算；上线前由财务逐条核对</td></tr>
+      <tr><td>财务人员不熟悉系统，抵触</td><td>上线失败</td><td>提前培训 + 试运行一个会计期间 + 专人答疑；保留手工凭证兜底</td></tr>
+      <tr><td>历史数据迁移成本高</td><td>上线延期</td><td>只迁移"期初余额 + 科目 + 员工名单"，明细历史留旧系统查询</td></tr>
+      <tr><td>人手/排期不足</td><td>质量下降</td><td>严守 P0/P1 优先级；P2 一律后置；MVP 先验收记账+报销+工资闭环</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ===== 11 多公司 ===== -->
+<section id="s11">
+  <div class="sec-head"><div class="sec-num">11</div><h2>多公司（多账套）支持</h2></div>
+  <p class="sec-sub">一套代码、一套数据库（共享库），用公司编码 company_code 区分；公司之间完全独立、互不可见、无合并需求</p>
+
+  <div class="card">
+    <h3>11.1 设计原则</h3>
+    <ul>
+      <li><b>一套部署</b>：单库单 schema + 一套前后端代码，所有公司共用同一实例；</li>
+      <li><b>公司编码区分</b>：所有业务数据统一携带 <span class="inline-code">company_code</span>，作为数据归属的唯一标识；</li>
+      <li><b>完全独立</b>：公司之间无业务关系、无合并报表需求；科目、凭证、期间、结账、报表、合同、人事各自独立；</li>
+      <li><b>互不可见</b>：非本公司的数据任何角色均不可见（查询强制按 company_code 过滤 + RLS 兜底）。</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>11.2 公司档案表 sys_company（DDL）</h3>
+    <pre><code>CREATE TABLE sys_company (
+    id            BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    company_code  VARCHAR(20)  NOT NULL,           -- 公司编码，如 A001
+    company_name  VARCHAR(100) NOT NULL,           -- 公司名称
+    tax_no        VARCHAR(50),                     -- 纳税识别号
+    contact       VARCHAR(50),  phone VARCHAR(30), -- 联系人 / 电话
+    status        VARCHAR(10)  NOT NULL DEFAULT 'ENABLED', -- ENABLED / DISABLED
+    create_by     BIGINT, create_time TIMESTAMPTZ,
+    update_by     BIGINT, update_time TIMESTAMPTZ,
+    deleted       SMALLINT DEFAULT 0,
+    CONSTRAINT uk_company_code UNIQUE (company_code)
+);</code></pre>
+  </div>
+
+  <div class="card">
+    <h3>11.3 company_code 贯穿清单（所有业务表统一新增）</h3>
+    <table>
+      <tr><th>域</th><th>需加 company_code 的表</th></tr>
+      <tr><td>系统</td><td>sys_user（归属公司）、sys_operation_log</td></tr>
+      <tr><td>财务</td><td>fin_account_subject、fin_voucher、fin_voucher_entry、fin_period、fin_voucher_rule、fin_expense_claim、fin_expense_item、fin_receivable_payable、fin_payment_receipt、fin_bank_account</td></tr>
+      <tr><td>合同</td><td>ct_contract、ct_contract_payment_plan、ct_contract_attachment</td></tr>
+      <tr><td>人事</td><td>base_department、hr_employee、hr_attendance、hr_salary、hr_social_security</td></tr>
+    </table>
+    <p style="font-size:13px;color:#374151;">字段规范：<span class="inline-code">company_code VARCHAR(20) NOT NULL</span>，每张表建 <span class="inline-code">(company_code, …)</span> 联合索引；凭证表唯一约束改为 <span class="inline-code">UNIQUE (company_code, period, voucher_no)</span>。</p>
+  </div>
+
+  <div class="card">
+    <h3>11.4 关键机制改造</h3>
+    <table>
+      <tr><th>机制</th><th>多公司改造方案</th></tr>
+      <tr><td>登录与上下文</td><td>用户归属公司（sys_user.company_id）；登录后 ThreadLocal 携带 company_code；所有查询自动追加公司过滤</td></tr>
+      <tr><td>凭证号</td><td>序列维度 = 公司 + 期间，<span class="inline-code">seq_voucher_no(company_code, period)</span></td></tr>
+      <tr><td>期间 / 结账</td><td>fin_period 带 company_code，各公司独立结账 / 反结账</td></tr>
+      <tr><td>科目体系</td><td>每公司一套科目；提供「从模板公司复制科目」一键初始化新公司</td></tr>
+      <tr><td>数据权限</td><td>在 全部 / 本部门 / 本人 之上增加「本公司」强制维度，任何角色不可跨公司</td></tr>
+      <tr><td>RLS 兜底</td><td>核心财务表启用 PostgreSQL 行级安全（policy 按 company_code），SQL 漏写条件也不串号</td></tr>
+      <tr><td>审批流</td><td>Flowable 流程实例带 tenantId = company_code</td></tr>
+      <tr><td>附件</td><td>MinIO 对象路径前缀 company_code/，按公司物理隔离</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>11.5 新增公司初始化流程</h3>
+    <ol>
+      <li>管理员在「公司管理」新增公司档案（编码 / 名称 / 税号）→ 启用；</li>
+      <li>复制科目模板（或从已有公司复制科目）→ 录入该公司期初余额；</li>
+      <li>创建该公司账号（或给既有用户分配该公司）→ 配置该公司角色 / 数据权限；</li>
+      <li>导入部门、员工；配置该公司字典与凭证映射规则（可复用模板）；</li>
+      <li>开始独立记账：凭证号、期间结账、报表均按该公司独立运行。</li>
+    </ol>
+  </div>
+</section>
+
+<div class="foot">
+  —— 财务管理系统开发方案 · 完 ——<br>
+  本文档为可执行开发计划，工作量与排期为估算值（按 2 后端 + 1 前端 + 0.5 测试），需结合实际团队与需求细化。
+</div>
+
+</div>
+</body>
+</html>

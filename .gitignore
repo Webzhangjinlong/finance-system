@@ -1,0 +1,23 @@
+﻿# === 前端 ===
+node_modules/
+dist/
+*.local
+
+# === 后端 ===
+target/
+*.class
+!.mvn/wrapper/maven-wrapper.jar
+
+# === IDE ===
+.idea/
+.vscode/
+*.iml
+
+# === 系统 ===
+.DS_Store
+Thumbs.db
+
+# === 环境与敏感信息 ===
+.env
+.env.*
+*.pem

@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>财务管理系统 · Codex Harness 开发约束与流程规范</title>
+<style>
+  :root{
+    --primary:#1E5AA8; --primary-light:#EAF2FB; --primary-deep:#16427B;
+    --bg:#F5F7FA; --card:#FFFFFF; --border:#E3E8EF;
+    --text:#1F2937; --text2:#6B7280; --line:#E5E7EB;
+    --success:#16A34A; --warn:#D97706; --danger:#DC2626;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'PingFang SC','Microsoft YaHei','Helvetica Neue',Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;font-size:15px;}
+  .container{max-width:1060px;margin:0 auto;padding:0 24px;}
+  .hero{background:linear-gradient(135deg,#0F4C81 0%,#1E5AA8 55%,#2E6FBF 100%);color:#fff;padding:54px 0 46px;position:relative;overflow:hidden;}
+  .hero::after{content:'';position:absolute;right:-120px;top:-120px;width:340px;height:340px;border-radius:50%;background:rgba(255,255,255,0.08);}
+  .hero .tag{display:inline-block;background:rgba(255,255,255,0.16);border:1px solid rgba(255,255,255,0.35);padding:4px 14px;border-radius:20px;font-size:13px;letter-spacing:1px;margin-bottom:18px;}
+  .hero h1{font-size:32px;font-weight:700;letter-spacing:1px;margin-bottom:12px;}
+  .hero p{font-size:15px;opacity:0.92;max-width:820px;}
+  .hero .meta{margin-top:20px;display:flex;gap:24px;flex-wrap:wrap;font-size:14px;opacity:0.9;}
+  .hero .meta b{font-size:16px;display:block;opacity:1;}
+  .toc{background:var(--card);border:1px solid var(--border);border-radius:12px;margin:26px 0;padding:18px 26px;}
+  .toc h3{font-size:16px;margin-bottom:10px;color:var(--primary);}
+  .toc ol{list-style:none;counter-reset:toc;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:6px 24px;}
+  .toc li{counter-increment:toc;font-size:14px;color:var(--text2);}
+  .toc li::before{content:counter(toc,decimal-leading-zero);color:var(--primary);font-weight:600;margin-right:8px;}
+  section{margin:38px 0;}
+  .sec-head{display:flex;align-items:center;gap:14px;margin-bottom:8px;}
+  .sec-num{flex:0 0 auto;width:42px;height:42px;border-radius:10px;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:17px;}
+  .sec-head h2{font-size:22px;font-weight:700;color:var(--text);}
+  .sec-sub{color:var(--text2);font-size:14px;margin:0 0 18px 56px;}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-bottom:16px;}
+  .card h3{font-size:16px;margin-bottom:10px;color:var(--primary-deep);}
+  .card h4{font-size:14.5px;margin:12px 0 6px;color:var(--primary-deep);}
+  .card p{color:#374151;font-size:14.5px;margin-bottom:8px;}
+  .card ul,.card ol{margin:6px 0 10px 20px;}
+  .card li{font-size:14px;margin:4px 0;color:#374151;}
+  table{width:100%;border-collapse:collapse;font-size:13px;background:var(--card);}
+  th,td{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top;}
+  th{background:#F3F6FA;color:var(--primary-deep);font-weight:600;white-space:nowrap;}
+  tr:nth-child(even) td{background:#FAFBFC;}
+  pre{background:#0F172A;color:#E2E8F0;border-radius:10px;padding:14px 16px;font-size:12px;line-height:1.6;overflow-x:auto;margin:8px 0;}
+  code{font-family:Consolas,'Courier New',monospace;}
+  .inline-code{background:#EEF1F5;border-radius:4px;padding:1px 6px;font-size:12.5px;color:#B45309;}
+  .note{background:#FFFBEB;border:1px solid #FDE68A;border-radius:8px;padding:11px 15px;font-size:13.5px;color:#92400E;margin-top:12px;}
+  .tip{background:#EFF6FF;border:1px solid #BFDBFE;border-radius:8px;padding:11px 15px;font-size:13.5px;color:#1E40AF;margin-top:12px;}
+  .danger{background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:11px 15px;font-size:13.5px;color:#991B1B;margin-top:12px;}
+  .badge{display:inline-block;padding:2px 10px;border-radius:12px;font-size:12px;font-weight:500;margin:2px 4px 2px 0;}
+  .b-must{background:#FEE2E2;color:#991B1B;}
+  .b-should{background:#FEF3C7;color:#92400E;}
+  .b-ok{background:#DCFCE7;color:#166534;}
+  .flow-step{display:flex;gap:10px;align-items:flex-start;margin:10px 0;}
+  .flow-num{flex:0 0 auto;width:26px;height:26px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;}
+  .flow-body{flex:1;min-width:0;}
+  .flow-body b{font-size:14px;color:var(--primary-deep);}
+  .flow-body p{font-size:13.5px;color:#374151;margin:2px 0;}
+  .foot{margin:40px 0 20px;text-align:center;color:var(--text2);font-size:13px;}
+  @media(max-width:640px){.hero h1{font-size:26px;} .sec-sub{margin-left:0;}}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="container">
+    <span class="tag">Codex Harness 规范 · V1.0</span>
+    <h1>财务管理系统 · 开发约束与流程规范</h1>
+    <p>基于《设计方案》《开发方案》《功能开发文档》，按 <b>Harness Engineering</b> 标准制定：<b>开发约束（定义规则）+ Codex 完整工作流（执行规则）+ 配套文件模板（落地规则）</b>，让智能体在约束下稳定、可验证地完成开发。</p>
+    <div class="meta">
+      <div><b>5 类</b>开发约束</div>
+      <div><b>7 个</b>标准流程</div>
+      <div><b>4 件套</b>收敛文件</div>
+      <div><b>5 个</b>业务 Skill</div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+<div class="toc">
+  <h3>规范目录</h3>
+  <ol>
+    <li>第一部分 · 开发约束（5 类硬规则）</li>
+    <li>业务硬约束（Business Invariants）</li>
+    <li>架构与分层约束</li>
+    <li>代码与命名约束</li>
+    <li>数据库约束</li>
+    <li>安全与权限约束</li>
+    <li>第二部分 · Codex + Harness 完整流程</li>
+    <li>项目初始化流程（一次性）</li>
+    <li>日常任务开发流程</li>
+    <li>技能（Skill）调用流程</li>
+    <li>验证门禁（CI）流程</li>
+    <li>收敛反馈流程</li>
+    <li>多 Agent 协作分工</li>
+    <li>精确命令清单</li>
+    <li>第三部分 · 配套文件模板</li>
+    <li>AGENTS.md 完整模板</li>
+    <li>.harness 四件套模板</li>
+    <li>Skills 清单与职责</li>
+    <li>CI 配置示例</li>
+  </ol>
+</div>
+
+<!-- ============ 第一部分 ============ -->
+<section>
+  <div class="sec-head"><div class="sec-num">一</div><h2>开发约束（5 类硬规则）</h2></div>
+  <p class="sec-sub">所有约束必须有"可执行载体"——写进 AGENTS.md、测试、lint、DB CHECK 或 CI，禁止只停留在文档描述</p>
+
+  <!-- 1.1 业务硬约束 -->
+  <div class="card">
+    <h3>1.1 业务硬约束（Business Invariants）</h3>
+    <p>这些是财务系统的"不可破坏规则"，任何代码变更都不得违反。每条都必须有对应测试或数据库约束兜底。</p>
+    <table>
+      <tr><th style="width:140px;">约束</th><th>规则</th><th style="width:200px;">可执行载体</th></tr>
+      <tr>
+        <td><span class="badge b-must">必须</span>金额精度</td>
+        <td>所有金额字段一律 <span class="inline-code">NUMERIC(18,2)</span>；后端用 <span class="inline-code">BigDecimal</span>；前端用字符串传递；<b>禁止</b> float/double 存金额</td>
+        <td>DB 字段类型 + 代码检查 + 单测</td>
+      </tr>
+      <tr>
+        <td><span class="badge b-must">必须</span>多公司隔离</td>
+        <td>所有业务表必须携带 <span class="inline-code">company_code</span>；任何查询必须带公司过滤；<b>禁止</b>跨公司数据查询；公司之间无合并需求</td>
+        <td>MyBatis-Plus 拦截器 + PG RLS + 单测</td>
+      </tr>
+      <tr>
+        <td><span class="badge b-must">必须</span>凭证借贷平衡</td>
+        <td>每张凭证借方合计 = 贷方合计；分录金额 &gt; 0；末级科目才能记账；数据库 CHECK 兜底</td>
+        <td>fin_voucher CHECK + 单测</td>
+      </tr>
+      <tr>
+        <td><span class="badge b-must">必须</span>凭证状态机</td>
+        <td>DRAFT → AUDITED → BOOKED → REVERSED；已审核/已过账凭证禁止直接修改；改错走"红字冲销 + 蓝字重录"</td>
+        <td>状态枚举 + 状态流转单测</td>
+      </tr>
+      <tr>
+        <td><span class="badge b-must">必须</span>凭证号唯一</td>
+        <td>凭证号 = 公司 + 期间 + 序列；并发下不重号不跳号；唯一约束 <span class="inline-code">(company_code, period, voucher_no)</span></td>
+        <td>DB 唯一约束 + 序列 + 并发测试</td>
+      </tr>
+      <tr>
+        <td><span class="badge b-must">必须</span>期间结账</td>
+        <td>已结账期间凭证只读、禁止新增；反结账仅财务经理；结账前校验借贷平衡、无未过账凭证、试算平衡</td>
+        <td>fin_period 状态 + 结账校验单测</td>
+      </tr>
+      <tr>
+        <td><span class="badge b-must">必须</span>凭证生成幂等</td>
+        <td>同一业务单据重复触发不生成第二张凭证；以 <span class="inline-code">source_type + source_id</span> 唯一约束</td>
+        <td>DB 唯一约束 + 幂等测试</td>
+      </tr>
+      <tr>
+        <td><span class="badge b-should">应当</span>核销规则</td>
+        <td>支持部分核销、多单核销一笔；核销后回写来源单据状态；账龄按剩余未核销金额 + 到期日计算</td>
+        <td>核销单测</td>
+      </tr>
+      <tr>
+        <td><span class="badge b-should">应当</span>工资计算</td>
+        <td>个税按累计预扣法；应发 − 社保个人 − 个税 = 实发；工资条仅本人可见</td>
+        <td>个税计算单测 + 权限测试</td>
+      </tr>
+    </table>
+    <div class="danger"><b>红线</b>：以上"必须"级约束，任何 PR 违反一律 CI 失败、禁止合入。</div>
+  </div>
+
+  <!-- 1.2 架构约束 -->
+  <div class="card">
+    <h3>1.2 架构与分层约束</h3>
+    <table>
+      <tr><th style="width:140px;">约束</th><th>规则</th><th style="width:200px;">可执行载体</th></tr>
+      <tr><td><span class="badge b-must">必须</span>分层依赖</td><td>Controller → Service → Mapper，<b>禁止</b> Controller 直连 Mapper、<b>禁止</b> Service 反向依赖 Controller、<b>禁止</b>跨业务域直接调 Mapper（跨域走 Service 接口）</td><td>ArchUnit 架构测试</td></tr>
+      <tr><td><span class="badge b-must">必须</span>技术栈固定</td><td>前端 Vue3+Element Plus+ECharts；后端 Spring Boot 3(JDK17)+MyBatis-Plus；DB PostgreSQL 16；缓存 Redis 7；审批 Flowable 7；存储 MinIO</td><td>pom.xml/package.json 锁定版本</td></tr>
+      <tr><td><span class="badge b-must">必须</span>模块化单体</td><td>后端按 finance-system/finance-finance/finance-contract/finance-hr/finance-workflow/finance-common/finance-framework 分包，不拆微服务</td><td>目录结构 + ArchUnit</td></tr>
+      <tr><td><span class="badge b-should">应当</span>事务边界</td><td>资金类操作（收付款、凭证生成、工资发放）必须 <span class="inline-code">@Transactional</span> + 幂等键；跨域事件用 Spring Event 解耦，不直接强耦合</td><td>代码审查 + 集成测试</td></tr>
+      <tr><td><span class="badge b-should">应当</span>统一返回</td><td>所有接口返回 <span class="inline-code">Result&lt;T&gt;</span>（code/msg/data）；分页返回 records/total/page/size；错误码 400/401/403/409/500</td><td>全局异常处理器 + 单测</td></tr>
+    </table>
+  </div>
+
+  <!-- 1.3 代码约束 -->
+  <div class="card">
+    <h3>1.3 代码与命名约束</h3>
+    <table>
+      <tr><th style="width:140px;">项</th><th>规则</th></tr>
+      <tr><td>后端命名</td><td>类：大驼峰（XxxController/XxxService/XxxMapper）；方法：小驼峰；常量：全大写下划线；包：全小写</td></tr>
+      <tr><td>前端命名</td><td>组件：大驼峰 .vue；composable：useXxx；store：小驼峰；API 文件：按模块 xxx.js</td></tr>
+      <tr><td>数据库</td><td>表名：模块前缀_业务名（fin_voucher/ct_contract/hr_employee）；字段：小写下划线；主键 id；公共字段 create_by/create_time/update_by/update_time/deleted</td></tr>
+      <tr><td>接口路径</td><td>/api/{模块}/{资源}，RESTful 风格；权限码 = 模块:资源:操作（finance:voucher:add）</td></tr>
+      <tr><td>日志</td><td>关键写操作记录操作日志（模块/动作/单据号/IP/时间）；禁止日志输出密码、token、身份证等敏感信息</td></tr>
+      <tr><td>注释</td><td>复杂业务规则（凭证生成、个税、结账）必须写注释说明规则来源；公共方法写 Javadoc</td></tr>
+      <tr><td>魔法值</td><td>状态、类型、错误码必须用枚举或常量，禁止硬编码字符串/数字</td></tr>
+    </table>
+  </div>
+
+  <!-- 1.4 数据库约束 -->
+  <div class="card">
+    <h3>1.4 数据库约束</h3>
+    <ul>
+      <li><b>主键</b>：<span class="inline-code">BIGINT GENERATED ALWAYS AS IDENTITY</span>，禁止业务主键；</li>
+      <li><b>金额</b>：<span class="inline-code">NUMERIC(18,2)</span>；</li>
+      <li><b>时间</b>：<span class="inline-code">TIMESTAMP WITH TIME ZONE</span>；</li>
+      <li><b>公共字段</b>：所有业务表带 create_by/create_time/update_by/update_time/deleted（逻辑删除）；</li>
+      <li><b>公司编码</b>：所有业务表带 <span class="inline-code">company_code VARCHAR(20) NOT NULL</span> + 联合索引；</li>
+      <li><b>核心 CHECK</b>：凭证借贷平衡、金额 &gt; 0、状态枚举合法；</li>
+      <li><b>唯一约束</b>：凭证号(公司+期间+号)、公司编码、员工工号、用户账号；</li>
+      <li><b>RLS</b>：核心财务表启用行级安全，按 company_code 过滤（SQL 漏写也不串号）；</li>
+      <li><b>迁移</b>：所有表结构变更走 Flyway/Liquibase 迁移脚本，禁止手工改库。</li>
+    </ul>
+  </div>
+
+  <!-- 1.5 安全约束 -->
+  <div class="card">
+    <h3>1.5 安全与权限约束</h3>
+    <ul>
+      <li><b>认证</b>：JWT 登录，有效期 2h；密码 BCrypt 加密；连续 5 次失败锁定 15 分钟；</li>
+      <li><b>授权</b>：RBAC + 数据权限（全部/本部门/本人/本公司）；接口必须加 <span class="inline-code">@PreAuthorize</span>；</li>
+      <li><b>数据权限</b>：列表查询通过 MyBatis-Plus 拦截器自动注入过滤，禁止业务代码硬编码绕过；</li>
+      <li><b>输入校验</b>：所有接口参数用 <span class="inline-code">@Valid</span> + JSR-303 注解；禁止拼接 SQL（用参数化）；</li>
+      <li><b>敏感数据</b>：身份证、手机号、银行卡脱敏展示；密码、token 禁止出现在日志/响应；</li>
+      <li><b>关键操作</b>：付款、结账、反结账、凭证冲销需记录审计日志，且需对应角色权限；</li>
+      <li><b>文件上传</b>：限制类型/大小，病毒校验，存储 MinIO 按 company_code 前缀隔离。</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ 第二部分 ============ -->
+<section>
+  <div class="sec-head"><div class="sec-num">二</div><h2>Codex + Harness 完整流程</h2></div>
+  <p class="sec-sub">从项目初始化到日常开发、验证、收敛的标准化工作流，智能体按此流程执行</p>
+
+  <!-- 2.1 初始化 -->
+  <div class="card">
+    <h3>2.1 项目初始化流程（一次性，约 0.5 天）</h3>
+    <div class="flow-step"><div class="flow-num">1</div><div class="flow-body"><b>建仓库与脚手架</b><p>Git 初始化；前后端脚手架（Vue3 Vite + Spring Boot Initializr）；Docker Compose（PG16/Redis7/MinIO）</p></div></div>
+    <div class="flow-step"><div class="flow-num">2</div><div class="flow-body"><b>落 Harness 文件</b><p>写入 AGENTS.md（~100 行导航）、docs/（三份文档 + business-rules.md + architecture-rules.md + openapi.yaml）、.harness/ 四件套、.codex/skills/ 五个 Skill</p></div></div>
+    <div class="flow-step"><div class="flow-num">3</div><div class="flow-body"><b>建库与种子数据</b><p>执行 DDL 建表；插入 demo 公司、科目模板、示例凭证、测试账号；验证启动可跑</p></div></div>
+    <div class="flow-step"><div class="flow-num">4</div><div class="flow-body"><b>配 CI 门禁</b><p>.github/workflows/ci.yml：lint → 单测 → 契约测试 → 构建 → 覆盖率门禁（≥70%）</p></div></div>
+    <div class="flow-step"><div class="flow-num">5</div><div class="flow-body"><b>冒烟验证</b><p>用 Codex 跑一个最小任务（如"新增一个字典项"），验证 AGENTS.md 被读取、命令可执行、CI 通过</p></div></div>
+    <div class="tip"><b>完成标志</b>：Codex 能独立完成一个 CRUD 任务，且全程自动遵守 AGENTS.md 约束、CI 全绿。</div>
+  </div>
+
+  <!-- 2.2 日常开发 -->
+  <div class="card">
+    <h3>2.2 日常任务开发流程（每个任务）</h3>
+    <div class="flow-step"><div class="flow-num">1</div><div class="flow-body"><b>任务拆解</b><p>把需求拆成可独立验证的小任务（每个任务 ≤ 1 天）；明确验收标准（对应哪条业务约束/哪个接口）</p></div></div>
+    <div class="flow-step"><div class="flow-num">2</div><div class="flow-body"><b>读上下文</b><p>Codex 自动读 AGENTS.md；按需读 docs/ 对应文档、business-rules.md、相关 Skill；<b>禁止</b>凭记忆写代码</p></div></div>
+    <div class="flow-step"><div class="flow-num">3</div><div class="flow-body"><b>编码实现</b><p>按分层约束写代码；硬约束必须遵守（金额类型、company_code、状态机）；复杂工作流调用对应 Skill</p></div></div>
+    <div class="flow-step"><div class="flow-num">4</div><div class="flow-body"><b>自跑验证</b><p>本地执行 AGENTS.md 中列出的 test/lint/build 命令；财务正确性用例必须通过；失败则修复并重跑</p></div></div>
+    <div class="flow-step"><div class="flow-num">5</div><div class="flow-body"><b>自审（/review）</b><p>调用 code-review Skill 自审：是否违反约束、是否有硬编码、是否缺测试、是否有安全问题</p></div></div>
+    <div class="flow-step"><div class="flow-num">6</div><div class="flow-body"><b>提交 PR</b><p>写清晰 commit message（类型+模块+说明）；PR 描述关联需求与验收标准；触发 CI</p></div></div>
+    <div class="flow-step"><div class="flow-num">7</div><div class="flow-body"><b>CI 门禁</b><p>CI 全绿才可合入；失败则回到第 4 步；关键操作（付款/结账）需人工 review</p></div></div>
+    <div class="note"><b>纪律</b>：Codex 不得跳过自跑验证和 /review 直接提交；不得在 CI 失败时强行合入。</div>
+  </div>
+
+  <!-- 2.3 Skill 调用 -->
+  <div class="card">
+    <h3>2.3 技能（Skill）调用流程</h3>
+    <p>高频复杂工作流封装为 Skill，Codex 按场景显式（$skill-name）或隐式（按描述匹配）调用：</p>
+    <table>
+      <tr><th>Skill</th><th>触发场景</th><th>核心步骤</th></tr>
+      <tr><td>voucher-engine</td><td>新增/修改凭证生成逻辑、单据→凭证映射</td><td>读映射规则 → 组装分录 → 幂等校验 → 写草稿 → 来源回填 → 跑凭证测试</td></tr>
+      <tr><td>period-close</td><td>期末结账/反结账功能开发</td><td>校验未过账凭证 → 借贷平衡 → 试算平衡 → 结转损益 → 锁定期间 → 结账测试</td></tr>
+      <tr><td>company-onboard</td><td>新增公司/多公司初始化</td><td>建公司档案 → 复制科目模板 → 录期初 → 建账号权限 → 验证公司隔离</td></tr>
+      <tr><td>db-migration</td><td>表结构变更</td><td>写 Flyway 迁移脚本 → 保留数据 → 验证回滚 → 更新 rule-registry</td></tr>
+      <tr><td>code-review</td><td>提交前自审</td><td>检查硬约束 → 检查测试覆盖 → 检查安全 → 检查命名 → 输出问题清单</td></tr>
+    </table>
+  </div>
+
+  <!-- 2.4 CI -->
+  <div class="card">
+    <h3>2.4 验证门禁（CI）流程</h3>
+    <div class="flow-step"><div class="flow-num">1</div><div class="flow-body"><b>代码检查</b><p>后端 checkstyle/spotbugs；前端 eslint/prettier；不通过即失败</p></div></div>
+    <div class="flow-step"><div class="flow-num">2</div><div class="flow-body"><b>架构测试</b><p>ArchUnit 校验分层依赖、命名规范、禁止跨层调用</p></div></div>
+    <div class="flow-step"><div class="flow-num">3</div><div class="flow-body"><b>单元测试</b><p>业务硬约束用例（借贷平衡、凭证号并发、幂等、结账校验、company_code 隔离）；覆盖率 ≥ 70%</p></div></div>
+    <div class="flow-step"><div class="flow-num">4</div><div class="flow-body"><b>集成测试</b><p>Testcontainers 起真实 PG；验证事务、审批流回调、收付款联动</p></div></div>
+    <div class="flow-step"><div class="flow-num">5</div><div class="flow-body"><b>契约测试</b><p>OpenAPI 契约校验：前后端接口字段一致</p></div></div>
+    <div class="flow-step"><div class="flow-num">6</div><div class="flow-body"><b>构建</b><p>前后端构建成功；产物可部署</p></div></div>
+    <div class="danger"><b>门禁规则</b>：任一步骤失败，PR 禁止合入；不得用 --no-verify 或跳过 CI 绕过。</div>
+  </div>
+
+  <!-- 2.5 收敛 -->
+  <div class="card">
+    <h3>2.5 收敛反馈流程（持续改进）</h3>
+    <div class="flow-step"><div class="flow-num">1</div><div class="flow-body"><b>发现失败</b><p>Codex 犯错（测试失败、评审发现问题、线上 bug）→ 记录现象</p></div></div>
+    <div class="flow-step"><div class="flow-num">2</div><div class="flow-body"><b>复盘</b><p>填写 .harness/failure-review.md：目标/失败现象/根因/避免方法/需新增的规则</p></div></div>
+    <div class="flow-step"><div class="flow-num">3</div><div class="flow-body"><b>登记教训</b><p>在 .harness/lessons.md 新增条目：错误→根因→固化载体→状态（待固化/已固化）</p></div></div>
+    <div class="flow-step"><div class="flow-num">4</div><div class="flow-body"><b>固化规则</b><p>把教训变成可执行规则：更新 AGENTS.md / business-rules.md / 新增测试 / 修改 Skill / 加 lint 规则</p></div></div>
+    <div class="flow-step"><div class="flow-num">5</div><div class="flow-body"><b>更新总账</b><p>.harness/rule-registry.md 登记新规则：来源→载体→验证机制→版本</p></div></div>
+    <div class="flow-step"><div class="flow-num">6</div><div class="flow-body"><b>收敛检查</b><p>定期跑 .harness/check.md：待固化=0？规则无缺口？AGENTS 覆盖硬约束？直到结构幂等</p></div></div>
+    <div class="tip"><b>收敛目标（结构幂等）</b>：lessons 中"待固化"为 0，rule-registry 全覆盖，重新应用规则不再产生新变化——此时同一错误不会再犯第二次。</div>
+  </div>
+
+  <!-- 2.6 多 agent -->
+  <div class="card">
+    <h3>2.6 多 Agent 协作分工（可选，复杂任务启用）</h3>
+    <table>
+      <tr><th>角色</th><th>职责</th><th>配置要点</th></tr>
+      <tr><td>default（主控）</td><td>任务拆解、协调、最终提交</td><td>读 AGENTS.md，分配子任务</td></tr>
+      <tr><td>explorer（调研）</td><td>读文档、查代码、确认接口/表结构，输出调研报告</td><td>只读权限，不写代码</td></tr>
+      <tr><td>worker（开发）</td><td>按调研结果编码、写测试、自跑验证</td><td>沙箱限制，只能改指定模块</td></tr>
+      <tr><td>monitor（监督）</td><td>盯测试结果、CI 状态、硬约束违反，告警</td><td>只读，发现问题通知 default</td></tr>
+    </table>
+    <p style="font-size:13.5px;margin-top:8px;">配置位置：<span class="inline-code">~/.codex/config.toml</span> 开启 <span class="inline-code">multi_agent = true</span>，每个角色配独立 instruction、模型、sandboxing。</p>
+  </div>
+
+  <!-- 2.7 命令 -->
+  <div class="card">
+    <h3>2.7 精确命令清单（AGENTS.md 中必须列出，Codex 直接执行）</h3>
+    <pre><code># 后端
+cd finance-server
+./mvnw test                    # 单元测试
+./mvnw verify                  # 全量验证（含架构测试）
+./mvnw spring-boot:run         # 启动后端
+./mvnw checkstyle:check        # 代码风格检查
+
+# 前端
+cd finance-web
+npm install
+npm run lint                   # 代码检查
+npm run test                   # 前端测试
+npm run dev                    # 启动前端
+npm run build                  # 构建
+
+# 环境
+docker compose up -d           # 启动 PG/Redis/MinIO
+docker compose down            # 停止环境
+
+# 数据库迁移
+cd finance-server
+./mvnw flyway:migrate          # 执行迁移
+./mvnw flyway:info             # 查看迁移状态</code></pre>
+    <div class="note">命令必须在脚手架搭建后验证可执行；不可执行的命令不得写入 AGENTS.md。</div>
+  </div>
+</section>
+
+<!-- ============ 第三部分 ============ -->
+<section>
+  <div class="sec-head"><div class="sec-num">三</div><h2>配套文件模板</h2></div>
+  <p class="sec-sub">可直接复制到项目中使用的完整模板</p>
+
+  <!-- 3.1 AGENTS.md -->
+  <div class="card">
+    <h3>3.1 AGENTS.md 完整模板（仓库根目录，~100 行）</h3>
+    <pre><code># 财务管理系统 AGENTS.md
+
+## 项目
+业财一体的多公司财务系统，覆盖财务管理、合同管理、人事管理三模块。
+业务单据（报销/合同收付款/工资）审批后自动生成记账凭证。
+
+## 技术栈
+- 前端：Vue 3 + Vite + Pinia + Element Plus + ECharts
+- 后端：Spring Boot 3 (JDK 17) + MyBatis-Plus + Spring Security + JWT
+- 数据库：PostgreSQL 16（金额 NUMERIC(18,2)，禁止 float）
+- 缓存：Redis 7；审批：Flowable 7；存储：MinIO
+- 部署：Docker Compose + Nginx
+
+## 目录结构
+- finance-web/       前端
+- finance-server/    后端（按 system/finance/contract/hr/workflow/common/framework 分包）
+- docs/              知识库（三份文档 + 提取规则 + OpenAPI）
+- .codex/skills/     项目级技能
+- .harness/          收敛文件（lessons/registry/review/check）
+
+## 硬约束（写代码前必读 docs/business-rules.md）
+1. 金额一律 NUMERIC(18,2)，后端 BigDecimal，禁止 float/double
+2. 所有业务表必须携带 company_code，禁止跨公司查询
+3. 凭证必须借贷平衡；状态机 DRAFT→AUDITED→BOOKED→REVERSED
+4. 凭证号 = 公司+期间+序列，唯一约束 (company_code, period, voucher_no)
+5. 已结账期间凭证只读；改错走红字冲销+蓝字重录
+6. 接口必须带 @PreAuthorize 权限注解；数据权限由拦截器自动注入
+7. 分层：Controller→Service→Mapper，禁止跨层、禁止 Controller 直连 Mapper
+8. 状态/类型/错误码必须用枚举，禁止硬编码
+
+## 命令
+- 后端测试：cd finance-server && ./mvnw test
+- 后端全量验证：cd finance-server && ./mvnw verify
+- 前端检查：cd finance-web && npm run lint
+- 启动环境：docker compose up -d
+- 启动后端：cd finance-server && ./mvnw spring-boot:run
+- 启动前端：cd finance-web && npm run dev
+
+## DO NOT
+- 不要用 float/double 存金额
+- 不要跨公司查询数据
+- 不要修改已结账期间的凭证
+- 不要绕过权限注解或数据权限拦截
+- 不要跳过测试和 /review 直接提交
+- 不要用 --no-verify 绕过 CI 门禁
+- 不要在日志输出密码、token、身份证
+
+## 文档导航
+- 业务背景：docs/财务管理系统设计方案.html
+- 架构与排期：docs/财务管理系统开发方案.html
+- 功能规格：docs/财务管理系统功能开发文档.html
+- 业务硬约束提取：docs/business-rules.md
+- 架构约束提取：docs/architecture-rules.md
+- 接口契约：docs/api-contracts/openapi.yaml
+- 规则总账：.harness/rule-registry.md
+- 教训库：.harness/lessons.md
+
+## 工作流
+1. 读 AGENTS.md → 按需读 docs/ → 编码 → 自跑 test/lint → /review 自审 → 提交 PR → CI
+2. 复杂工作流调用 Skill：$voucher-engine / $period-close / $company-onboard / $db-migration
+3. 犯错后按 .harness/failure-review.md 复盘，教训写入 .harness/lessons.md 并固化规则</code></pre>
+  </div>
+
+  <!-- 3.2 .harness -->
+  <div class="card">
+    <h3>3.2 .harness 四件套模板</h3>
+
+    <h4>① .harness/lessons.md（教训库）</h4>
+    <pre><code># 教训库
+| ID | 日期 | 错误现象 | 根因 | 固化载体 | 状态 |
+|----|------|----------|------|----------|------|
+| L-001 | 2026-09-04 | 凭证金额用 Double 导致精度丢失 | POJO 字段类型错误 | business-rules.md + 单测 | 已固化 |
+| L-002 | ... | ... | ... | ... | 待固化 |
+
+规则：每条教训必须在 3 天内固化为可执行规则；"待固化"超过 3 条触发收敛检查。</code></pre>
+
+    <h4>② .harness/rule-registry.md（规则总账）</h4>
+    <pre><code># 规则总账
+| ID | 规则 | 来源文档 | 载体 | 验证机制 | 版本 |
+|----|------|----------|------|----------|------|
+| R-001 | 金额 NUMERIC(18,2) | 开发方案 3.1 | DB 字段 + 代码检查 | ci 步骤1 | v1 |
+| R-002 | 借贷平衡 | 功能开发文档 4.2 | fin_voucher CHECK + 单测 | ci 步骤3 | v1 |
+| R-003 | company_code 隔离 | 开发方案 11章 | 拦截器 + RLS + 单测 | ci 步骤3 | v1 |
+| R-004 | 分层依赖 | 开发方案 2.2 | ArchUnit | ci 步骤2 | v1 |
+
+规则：每条约束必须有"载体+验证机制"；有来源无载体 = 缺口，必须补。</code></pre>
+
+    <h4>③ .harness/failure-review.md（复盘模板）</h4>
+    <pre><code># 失败复盘
+- 任务目标：
+- 失败现象：
+- 根因分析：
+- 避免方法：
+- 需新增/修改的规则：
+- 需新增/修改的测试：
+- 责任人 / 日期：</code></pre>
+
+    <h4>④ .harness/check.md（收敛检查清单）</h4>
+    <pre><code># 收敛检查（每周/每迭代跑一次）
+- [ ] lessons.md 中"待固化"条目 = 0
+- [ ] rule-registry.md 中所有规则都有载体和验证机制
+- [ ] 三份文档中的硬约束是否全部在 rule-registry 登记
+- [ ] AGENTS.md 是否覆盖全部"必须"级约束
+- [ ] CI 门禁是否包含所有业务硬约束测试
+- [ ] 高发错误是否已固化为规则或测试
+- [ ] Skills 是否覆盖所有高频复杂工作流
+- [ ] 种子数据是否完整可用（demo 公司/科目/凭证/账号）
+全部勾选 = 收敛健康；有未勾选项 = 识别缺口，进入固化流程。</code></pre>
+  </div>
+
+  <!-- 3.3 Skills -->
+  <div class="card">
+    <h3>3.3 Skills 清单与职责</h3>
+    <table>
+      <tr><th>Skill 路径</th><th>职责</th><th>必读输入</th><th>产出</th></tr>
+      <tr><td>.codex/skills/voucher-engine/</td><td>凭证生成与映射规则开发</td><td>fin_voucher_rule 表、business-rules.md、功能开发文档 4.8</td><td>凭证生成代码 + 映射规则 + 幂等测试</td></tr>
+      <tr><td>.codex/skills/period-close/</td><td>期末结账与反结账</td><td>功能开发文档 4.4、business-rules.md</td><td>结账服务 + 校验逻辑 + 结账测试</td></tr>
+      <tr><td>.codex/skills/company-onboard/</td><td>多公司初始化</td><td>开发方案 11.5、sys_company DDL</td><td>公司建档 + 科目复制 + 权限配置 + 隔离测试</td></tr>
+      <tr><td>.codex/skills/db-migration/</td><td>数据库表结构变更</td><td>现有 DDL、rule-registry.md</td><td>Flyway 迁移脚本 + 回滚验证 + registry 更新</td></tr>
+      <tr><td>.codex/skills/code-review/</td><td>提交前自审</td><td>AGENTS.md、business-rules.md、变更 diff</td><td>问题清单（约束违反/缺测试/安全/命名）</td></tr>
+    </table>
+    <p style="font-size:13.5px;margin-top:8px;">每个 Skill 目录含 <span class="inline-code">SKILL.md</span>（描述+触发条件+步骤+验收标准）和可选 assets/。</p>
+  </div>
+
+  <!-- 3.4 CI -->
+  <div class="card">
+    <h3>3.4 CI 配置示例（.github/workflows/ci.yml）</h3>
+    <pre><code>name: CI
+on: [pull_request, push]
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      postgres: { image: postgres:16, env: { POSTGRES_PASSWORD: test }, ports: ['5432:5432'] }
+      redis: { image: redis:7-alpine, ports: ['6379:6379'] }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '17' }
+      - run: cd finance-server && ./mvnw checkstyle:check        # 步骤1 代码检查
+      - run: cd finance-server && ./mvnw test -P archunit        # 步骤2 架构测试
+      - run: cd finance-server && ./mvnw verify                  # 步骤3+4 单测+集成
+      - run: cd finance-server && ./mvnw package -DskipTests     # 步骤6 构建
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - run: cd finance-web && npm ci && npm run lint           # 前端检查
+      - run: cd finance-web && npm run test -- --coverage       # 前端测试
+      - run: cd finance-web && npm run build                    # 前端构建
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: npx @redocly/cli lint docs/api-contracts/openapi.yaml  # 步骤5 契约校验</code></pre>
+    <div class="tip"><b>覆盖率门禁</b>：后端 JaCoCo ≥ 70%，前端 Vitest 覆盖率 ≥ 60%；财务核心模块（凭证/结账/收付款）覆盖率 ≥ 85%。</div>
+  </div>
+</section>
+
+<div class="foot">
+  —— 财务管理系统 · Codex Harness 开发约束与流程规范 · 完 ——<br>
+  本规范与《设计方案》《开发方案》《功能开发文档》配套使用；约束变更必须同步更新 rule-registry.md 并经 CI 验证。
+</div>
+
+</div>
+</body>
+</html>
