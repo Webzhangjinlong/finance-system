@@ -1,0 +1,25 @@
+# 测试环境配置（本机 PG17 测试库 / CI services.postgres）
+# 与 application.yml 合并生效；@ActiveProfiles("test") 激活
+spring:
+  datasource:
+    url: jdbc:postgresql://${TEST_DB_HOST:localhost}:${TEST_DB_PORT:5432}/${TEST_DB_NAME:finance-system-test}
+    username: ${TEST_DB_USER:postgres}
+    password: ${TEST_DB_PASSWORD:postgres}
+  autoconfigure:
+    exclude:
+      # Gate 4：测试基座阶段排除 Flowable 引擎（避免其先于应用 Flyway 建表干扰迁移判断）
+      # Gate 6 流程模块测试时再引入独立的 Flowable schema 初始化方案
+      - org.flowable.spring.boot.ProcessEngineAutoConfiguration
+      - org.flowable.spring.boot.ProcessEngineServicesAutoConfiguration
+      - org.flowable.spring.boot.app.AppEngineAutoConfiguration
+      - org.flowable.spring.boot.app.AppEngineServicesAutoConfiguration
+      - org.flowable.spring.boot.dmn.DmnEngineAutoConfiguration
+      - org.flowable.spring.boot.dmn.DmnEngineServicesAutoConfiguration
+      - org.flowable.spring.boot.idm.IdmEngineAutoConfiguration
+      - org.flowable.spring.boot.idm.IdmEngineServicesAutoConfiguration
+      - org.flowable.spring.boot.eventregistry.EventRegistryAutoConfiguration
+      - org.flowable.spring.boot.eventregistry.EventRegistryServicesAutoConfiguration
+      - org.flowable.spring.boot.cmmn.CmmnEngineAutoConfiguration
+      - org.flowable.spring.boot.cmmn.CmmnEngineServicesAutoConfiguration
+      - org.flowable.spring.boot.RestApiAutoConfiguration
+      - org.flowable.spring.boot.FlowableSecurityAutoConfiguration
