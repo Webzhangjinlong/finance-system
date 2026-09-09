@@ -8,7 +8,7 @@
 
 | # | 规则 | 载体 | 验证方式 | 状态 |
 |---|------|------|----------|------|
-| R01 | 金额一律 `NUMERIC(18,2)`/BigDecimal，禁止 float | DB DDL + AGENTS.md #1 | `ck_*_amount` CHECK + 代码评审 | ✅ 生效 |
+| R01 | 金额一律 `NUMERIC(18,2)`/BigDecimal，禁止 float | DB DDL + ArchUnit | `ck_*_amount` CHECK + `business_fields_must_not_be_float_or_double`（CI 强制） | ✅ 生效 |
 | R02 | 业务表必含 `company_code`，公司隔离 | DB DDL（23 表）+ RLS + 应用拦截器（待建） | 表结构校验 + RLS policy 存在性 | ✅ 生效 |
 | R03 | 凭证借贷必平衡 | DB CHECK `ck_fin_voucher_balance` + 服务校验（待建） | 违规 INSERT 被拒（已实测） | ✅ 生效 |
 | R04 | 凭证状态机 DRAFT→AUDITED→BOOKED→REVERSED | DB CHECK `ck_fin_voucher_status` | 非法状态被拒 | ✅ 生效 |
@@ -19,11 +19,16 @@
 | R09 | 已结账期间只读 | 服务层校验（待建） | 待实现 | ⏳ 未生效 |
 | R10 | 收付款/核销不超额 | DB CHECK `ck_fin_ar_received` / `ck_fin_ap_paid` / `ck_ctr_plan_paid` + 服务校验（待建） | 超额核销被拒 | ✅ 生效（DB 层） |
 | R11 | 凭证号/公司编码/工号唯一 | `uq_fin_voucher_no` / `uq_fin_company_code` / `uq_hr_employee_no` 等 | 重复 INSERT 被拒 | ✅ 生效 |
-| R12 | 结构变更只走 Flyway | `db/migration/V*.sql` + flyway_schema_history | `flyway migrate` 校验 | ✅ 生效 |
+| R12 | 结构变更只走 Flyway | `db/migration/V*.sql` + flyway_schema_history + CI 上下文测试 | `mvn verify`（测试迁移至最新） | ✅ 生效 |
 | R13 | 主键雪花 ID / TIMESTAMPTZ / 公共五件套 / 逻辑删除 | DB DDL 全表 | 表结构校验 | ✅ 生效 |
-| R14 | 分页结构统一 records/total/page/size | 代码规范（Gate 4 起 ArchUnit 校验） | 待实现 | ⏳ 未生效 |
-| R15 | 依赖方向 Controller→Service→Mapper | ArchUnit（Gate 4 起） | 待实现 | ⏳ 未生效 |
-| R16 | 合入受保护 main（评审+禁直推） | GitHub 分支保护 + `tools/merge-pr.ps1` | PR 流程 | ✅ 生效 |
+| R14 | 分页结构统一 records/total/page/size | 代码规范（服务层落地时评审校验） | 待实现 | ⏳ 未生效 |
+| R15 | 依赖方向 Controller→Service→Mapper | **ArchUnit `layered_dependencies` 等 3 条 + CI 强制** | `mvn verify`（CI 门禁） | ✅ 生效 |
+| R16 | 跨模块禁止直调他人 Mapper | **ArchUnit `no_cross_module_mapper_dependency` + CI** | `mvn verify` | ✅ 生效 |
+| R17 | framework 不得依赖业务模块 | **ArchUnit `framework_must_not_depend_on_business_modules` + CI** | `mvn verify` | ✅ 生效 |
+| R18 | 分层类命名规范（Controller/Service/Mapper 后缀） | **ArchUnit 命名 3 条 + CI** | `mvn verify` | ✅ 生效 |
+| R19 | CI 门禁：合入 main 前必须通过 backend-ci + frontend-ci | **GitHub 分支保护 required status checks** | PR 状态检查 | ✅ 生效 |
+| R20 | 合入受保护 main（评审 + 禁直推/强推/删除） | GitHub 分支保护 + `tools/merge-pr.ps1` | PR 流程（自动 bypass 后恢复并验证） | ✅ 生效 |
+| R21 | 测试必须真实落库（Flyway + PG），禁止 mock 掉迁移 | CI services.postgres + 上下文测试 | `mvn verify` | ✅ 生效 |
 
 ## 规则注册流程
 
