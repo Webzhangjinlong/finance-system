@@ -1,8 +1,7 @@
-# 开发环境配置
-# 注意：DB_PASSWORD 请按本机 PostgreSQL 实际密码修改（骨架阶段未接入数据库连接验证）
+# 开发环境配置（本机 PostgreSQL 17）
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/finance
+    url: jdbc:postgresql://localhost:5432/finance-system
     username: postgres
     password: postgres
 
