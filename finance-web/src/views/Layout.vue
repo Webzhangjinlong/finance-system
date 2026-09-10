@@ -11,6 +11,7 @@
         <el-menu-item index="/approval"><el-icon><Checked /></el-icon>审批待办</el-menu-item>
         <el-menu-item index="/message"><el-icon><Bell /></el-icon>消息中心</el-menu-item>
 <el-menu-item index="/report"><el-icon><TrendCharts /></el-icon>财务报表</el-menu-item>
+        <el-menu-item index="/expense"><el-icon><Tickets /></el-icon>费用报销</el-menu-item>
 <el-menu-item index="/aging"><el-icon><Timer /></el-icon>应收应付账龄</el-menu-item>
       </el-menu>
     </el-aside>
@@ -42,7 +43,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { HomeFilled, List, Document, Files, Checked, Bell, TrendCharts, Timer } from '@element-plus/icons-vue'
+import { HomeFilled, List, Document, Files, Checked, Bell, TrendCharts, Timer, Tickets } from '@element-plus/icons-vue'
 import { unreadCount } from '@/api'
 import { useUserStore } from '@/stores/user'
 
