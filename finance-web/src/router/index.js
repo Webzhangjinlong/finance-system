@@ -43,6 +43,18 @@ const routes = [
         name: 'Message',
         component: () => import('@/views/message/index.vue'),
         meta: { title: '消息中心' }
+      },
+      {
+        path: 'report',
+        name: 'Report',
+        component: () => import('@/views/report/index.vue'),
+        meta: { title: '财务报表' }
+      },
+      {
+        path: 'aging',
+        name: 'Aging',
+        component: () => import('@/views/aging/index.vue'),
+        meta: { title: '应收应付账龄' }
       }
     ]
   }

@@ -49,3 +49,4 @@
 | L35 | 合入后分支保护状态检查（backend-ci/frontend-ci）丢失：merge-pr.ps1 用 PUT 全量覆盖 /branches/main/protection，$base 中 required_status_checks 为 $null，首次合入即覆盖掉 CI 门禁（CI 红也能合入，违反"机器强制"核心诉求） | PUT 是全量替换而非合并；脚本只关心 enforce_admins 的临时开关，未考虑其他保护字段 | 修复：$base 常驻 status_checks contexts；合入脚本 [3/3] 恢复后增加 status_checks 实证（enforce_admins + reviews + checks 三查）；lessons 记录本条目 | ✅ 已固化（merge-pr.ps1 + 实证） |
 
 | L36 | 已应用的 Flyway 迁移文件被修改（V8 增列）→ 本地/测试库 checksum 不匹配 → 83 例测试全 Error（上下文加载失败） | 迁移文件一旦被任何库应用，checksum 锁定，不得修改内容 | 未合入的迁移可改，但已应用过的库必须能对上 checksum：已应用则**追加新 V9 迁移**补列，不回改旧文件；新迁移在本地先跑通（mvn test 全绿）再合入 | ✅ 已固化（流程） |
+| L37 | 新集成测试 @BeforeEach `DELETE FROM fin_voucher` 全清 → 删掉 V2 种子凭证(1001/1002) → 依赖种子的 VoucherServiceTest/BookServiceTest/PeriodServiceTest 批量失败；且测试跑完未清理，残留凭证占凭证号导致顺序断言失败 | 共享测试库的种子数据是跨测试类的公共依赖，全量删除即破坏；测试方法间无 @AfterEach 兜底 | 清理 SQL 用 `WHERE id NOT IN (种子id)` 保留共享种子；@BeforeEach + @AfterEach 双清理保证跑完不留数据；破坏后从 V2 脚本原样重建种子 | ✅ 已固化（测试规范） |

@@ -21,9 +21,9 @@
 | F2 | 凭证管理（录入/审核/过账/冲销，凭证号占号） | GET/POST /voucher、PUT /voucher/{id}/audit、/book、/reverse、DELETE（草稿） | finance:voucher:add/edit；audit；book/reverse | ✅ Gate 6 |
 | F3 | 账簿查询（总账/明细账/日记账 + Excel） | GET /book/{type}?period=&subjectId= | finance:book:list | ✅ Gate 7 |
 | F4 | 期末结账（校验未过账/试算平衡/损益结转/反结账） | PUT /period/close、PUT /period/reopen、GET /period/list | finance:period:close/reopen | ✅ Gate 7 |
-| F5 | 财务报表（资产负债表/利润表/现金流量表） | GET /report/balance-sheet、/income、/cash-flow | finance:report:list | ⬜ |
+| F5 | 财务报表（资产负债表/利润表/现金流量表） | GET /report/balance-sheet、/income、/cash-flow | finance:report:list | ✅ Gate 12 #17 |
 | F6 | 费用报销（提交→审批→财务审核→打款→凭证） | GET/POST /expense、PUT /expense/{id}/submit、/approve、/reject、/pay | 发起(员工)/审批(部门负责人)/审核打款(财务) | ⬜ |
-| F7 | 收付款与应收应付（核销/账龄预警） | GET/POST /receivable、/payment、PUT /payment/{id}/confirm、GET /receivable/aging | 登记核销(出纳)/查看确认(财务经理) | ⬜ |
+| F7 | 收付款与应收应付（核销/账龄预警） | GET/POST /receivable、/payment、PUT /payment/{id}/confirm、GET /receivable/aging | 登记核销(出纳)/查看确认(财务经理) | ✅ Gate 12 #17（账龄 /finance/ar|ap/aging） |
 | F8 | 凭证映射引擎（事件监听→规则→草稿，幂等） | GET/POST /voucher-rule | 规则维护(财务经理)；触发系统内部 | ⬜ |
 
 ## 合同管理（com.finance.contract）
