@@ -1,7 +1,6 @@
 package com.finance.hr.dto;
 
 import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
 
@@ -9,9 +8,6 @@ import java.math.BigDecimal;
  * 工资草稿编辑入参（H3，DRAFT 状态可改；金额 BigDecimal）。
  */
 public class SalaryDTO {
-
-    @NotNull(message = "员工不能为空")
-    private Long employeeId;
 
     @DecimalMin(value = "0.0", message = "基本工资不能为负")
     private BigDecimal baseSalary;
@@ -33,14 +29,6 @@ public class SalaryDTO {
 
     @DecimalMin(value = "0.0", message = "其他扣款不能为负")
     private BigDecimal otherDeduct;
-
-    public Long getEmployeeId() {
-        return employeeId;
-    }
-
-    public void setEmployeeId(Long employeeId) {
-        this.employeeId = employeeId;
-    }
 
     public BigDecimal getBaseSalary() {
         return baseSalary;
