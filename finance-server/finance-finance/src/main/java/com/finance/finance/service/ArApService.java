@@ -6,6 +6,7 @@ import com.finance.common.core.domain.PageResult;
 import com.finance.common.core.exception.BusinessException;
 import com.finance.finance.domain.FinAp;
 import com.finance.finance.domain.FinAr;
+import com.finance.finance.domain.vo.AgingVO;
 import com.finance.finance.mapper.FinApMapper;
 import com.finance.finance.mapper.FinArMapper;
 import org.slf4j.Logger;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 /**
  * 应收/应付服务（C3 联动，docs 5.3）：计划到期生成 AR/AP（幂等）+ 收付款核销回写（超额拦截）。
@@ -182,7 +184,82 @@ public class ArApService {
         return PageResult.of(p.getRecords(), p.getTotal(), p.getCurrent(), p.getSize());
     }
 
+    /** 应收/应付账龄（F7，docs 4.7）：按到期日分档 未到期/0-30/31-60/61-90/90+，余额=未收付部分。 */
+    public AgingVO aging(String companyCode, String type, LocalDate asOf) {
+        AgingVO vo = new AgingVO();
+        vo.setType(type);
+        vo.setAsOf(asOf);
+        boolean isAr = "AR".equalsIgnoreCase(type);
+        java.util.Map<String, long[]> counts = new java.util.HashMap<>();
+        java.util.Map<String, BigDecimal> sums = new java.util.HashMap<>();
+        for (String bucket : java.util.List.of(AgingVO.NOT_DUE, AgingVO.D0_30,
+                AgingVO.D31_60, AgingVO.D61_90, AgingVO.D90_PLUS)) {
+            counts.put(bucket, new long[]{0});
+            sums.put(bucket, BigDecimal.ZERO);
+        }
+        if (isAr) {
+            List<FinAr> list = arMapper.selectList(new LambdaQueryWrapper<FinAr>()
+                    .eq(FinAr::getCompanyCode, companyCode)
+                    .ne(FinAr::getStatus, FinAr.STATUS_SETTLED)
+                    .orderByAsc(FinAr::getDueDate));
+            for (FinAr ar : list) {
+                BigDecimal balance = ar.getAmount().subtract(ar.getReceivedAmount());
+                String bucket = bucketOf(ar.getDueDate(), asOf);
+                counts.get(bucket)[0]++;
+                sums.put(bucket, sums.get(bucket).add(balance));
+                vo.getDetail().add(new AgingVO.DetailItem(ar.getArNo(), ar.getCustomerName(),
+                        ar.getDueDate(), ar.getAmount(), ar.getReceivedAmount(), balance,
+                        daysOf(ar.getDueDate(), asOf), bucket));
+            }
+        } else {
+            List<FinAp> list = apMapper.selectList(new LambdaQueryWrapper<FinAp>()
+                    .eq(FinAp::getCompanyCode, companyCode)
+                    .ne(FinAp::getStatus, FinAp.STATUS_SETTLED)
+                    .orderByAsc(FinAp::getDueDate));
+            for (FinAp ap : list) {
+                BigDecimal balance = ap.getAmount().subtract(ap.getPaidAmount());
+                String bucket = bucketOf(ap.getDueDate(), asOf);
+                counts.get(bucket)[0]++;
+                sums.put(bucket, sums.get(bucket).add(balance));
+                vo.getDetail().add(new AgingVO.DetailItem(ap.getApNo(), ap.getSupplierName(),
+                        ap.getDueDate(), ap.getAmount(), ap.getPaidAmount(), balance,
+                        daysOf(ap.getDueDate(), asOf), bucket));
+            }
+        }
+        for (String bucket : java.util.List.of(AgingVO.NOT_DUE, AgingVO.D0_30,
+                AgingVO.D31_60, AgingVO.D61_90, AgingVO.D90_PLUS)) {
+            vo.getSummary().add(new AgingVO.SummaryItem(bucket, counts.get(bucket)[0], sums.get(bucket)));
+        }
+        return vo;
+    }
+
     // ==================== 内部实现 ====================
+
+    /** 到期日与基准日天数差（到期日当天=0，未到期为负）。 */
+    private long daysOf(LocalDate dueDate, LocalDate asOf) {
+        if (dueDate == null) {
+            return 0;
+        }
+        return java.time.temporal.ChronoUnit.DAYS.between(dueDate, asOf);
+    }
+
+    private String bucketOf(LocalDate dueDate, LocalDate asOf) {
+        long days = daysOf(dueDate, asOf);
+        if (days < 0) {
+            return AgingVO.NOT_DUE;
+        }
+        if (days <= 30) {
+            return AgingVO.D0_30;
+        }
+        if (days <= 60) {
+            return AgingVO.D31_60;
+        }
+        if (days <= 90) {
+            return AgingVO.D61_90;
+        }
+        return AgingVO.D90_PLUS;
+    }
+
 
     private String nextArNo(String companyCode) {
         return nextNo(companyCode, "AR-", arMapper::selectLatestArNo);
