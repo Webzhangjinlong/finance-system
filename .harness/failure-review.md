@@ -48,3 +48,12 @@
 - **避免方法**：SQL 走临时文件 + `-f`；JSON body 走文件 + `-d @file`；mvn 走 `cmd /c "..."` 包裹
 - **需新增规则**：`禁止在 & exe 传参中依赖内嵌双引号` → 固化到 lessons L08/L09 与 tools 脚本
 - **状态**：✅ 已固化
+## H1-H3 批次复盘（Gate 15）
+
+| 事件 | 根因 | 处置 | 状态 |
+|---|---|---|---|
+| V12 迁移 1400/1401/1402 与 V2 种子菜单冲突，Flyway 回滚 | 未核对 V2 已占 id（L39 同源复踩） | V12 重写：复用 V2 菜单，仅新增 1403+按钮；role_menu 用 SELECT 100000+m.id 授权 | ✅ 已固化 L42 |
+| 工资核算重复执行缺勤扣款累加 | 缺勤扣款写持久字段 other_deduct 且累加 | 改派生项不进 other_deduct，仅当月应税/实发参与；测试补幂等断言 | ✅ 已固化 L43（PR#23） |
+| 工资条弹窗空/GET /salary/{id}/slip 500 | 雪花 ID 超 JS 安全整数，Jackson 数字序列化精度丢失 → 前端取错误 id 请求 | JacksonConfig 全局 Long→String；前端/直连数据对比定位"假象" | ✅ 已固化 L44（PR#24） |
+| verify-local FAIL（npm ci exit -4048） | npm ci 偶发权限/网络失败 | npm install 重装（registry npmmirror）后 build 通过 | ✅ |
+| 页面 403（工资列表） | 浏览器旧 token 权限快照无 hr 权限 | 重新登录获取含 hr 权限新 token | ✅ |
