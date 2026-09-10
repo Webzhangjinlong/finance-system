@@ -2,6 +2,7 @@ package com.finance.arch;
 
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.Dependency;
+import com.tngtech.archunit.core.importer.ImportOption;
 import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchCondition;
@@ -25,10 +26,10 @@ import static com.tngtech.archunit.library.Architectures.layeredArchitecture;
 /**
  * 架构守护测试（AGENTS.md 硬约束的机器强制）。
  *
- * <p>规则空转期即可合入：当前无业务类时全部通过；后续任何代码违反
- * 依赖方向 / 模块边界 / 命名 / 金额类型时，CI 将直接失败。</p>
+ * <p>规则只约束生产代码（ImportOption.DoNotIncludeTests，测试类不参与分层/命名规则），
+ * 任何代码违反依赖方向 / 模块边界 / 命名 / 金额类型时，CI 将直接失败。</p>
  */
-@AnalyzeClasses(packages = "com.finance")
+@AnalyzeClasses(packages = "com.finance", importOptions = ImportOption.DoNotIncludeTests.class)
 public class ArchitectureTest {
 
     private static final Pattern MODULE_PATTERN = Pattern.compile("^com\\.finance\\.(\\w+)");

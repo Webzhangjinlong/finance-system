@@ -3,7 +3,7 @@ package com.finance.common.core.exception;
 /**
  * 业务异常。
  *
- * <p>业务规则校验失败时抛出，由全局异常处理器转换为统一 Result，禁止堆栈直出。</p>
+ * <p>业务规则校验失败时抛出，由全局异常处理器转换为统一 Result，禁止异常堆栈直接暴露给前端。</p>
  */
 public class BusinessException extends RuntimeException {
 
@@ -13,6 +13,11 @@ public class BusinessException extends RuntimeException {
 
     public BusinessException(String message) {
         super(message);
+        this.code = 500;
+    }
+
+    public BusinessException(String message, Throwable cause) {
+        super(message, cause);
         this.code = 500;
     }
 
