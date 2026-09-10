@@ -100,6 +100,25 @@ export function readAllMessage() {
   return request({ url: '/message/read-all', method: 'put' })
 }
 
+
+// ==================== 财务报表（F5） ====================
+export function getBalanceSheet(params) {
+  return request({ url: '/finance/report/balance-sheet', method: 'get', params })
+}
+export function getIncomeStatement(params) {
+  return request({ url: '/finance/report/income', method: 'get', params })
+}
+export function getCashFlow(params) {
+  return request({ url: '/finance/report/cash-flow', method: 'get', params })
+}
+
+// ==================== 应收/应付账龄（F7） ====================
+export function getArAging(params) {
+  return request({ url: '/finance/ar/aging', method: 'get', params })
+}
+export function getApAging(params) {
+  return request({ url: '/finance/ap/aging', method: 'get', params })
+}
 // ==================== 健康检查 ====================
 export function getHealth() {
   return request({ url: '/system/health', method: 'get' })
