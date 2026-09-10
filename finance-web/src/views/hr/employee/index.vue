@@ -26,6 +26,9 @@
         <el-table-column prop="position" label="职位" width="130" />
         <el-table-column prop="phone" label="手机号" width="130" />
         <el-table-column prop="hireDate" label="入职日期" width="110" />
+        <el-table-column prop="contractExpireDate" label="合同到期" width="110">
+          <template #default="{ row }">{{ row.contractExpireDate || '-' }}</template>
+        </el-table-column>
         <el-table-column label="状态" width="90">
           <template #default="{ row }">
             <el-tag :type="row.status === 'ONBOARD' ? 'success' : 'info'">
@@ -71,6 +74,7 @@
           </el-col>
           <el-col :span="12"><el-form-item label="职位"><el-input v-model="form.position" /></el-form-item></el-col>
           <el-col :span="12"><el-form-item label="入职日期"><el-date-picker v-model="form.hireDate" type="date" value-format="YYYY-MM-DD" style="width: 100%" /></el-form-item></el-col>
+          <el-col :span="12"><el-form-item label="合同到期"><el-date-picker v-model="form.contractExpireDate" type="date" value-format="YYYY-MM-DD" style="width: 100%" /></el-form-item></el-col>
           <el-col :span="12"><el-form-item label="工资账号"><el-input v-model="form.salaryAccount" /></el-form-item></el-col>
           <el-col :span="12"><el-form-item label="身份证号"><el-input v-model="form.idCard" /></el-form-item></el-col>
         </el-row>

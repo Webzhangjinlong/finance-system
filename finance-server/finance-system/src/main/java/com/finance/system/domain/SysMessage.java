@@ -24,6 +24,8 @@ public class SysMessage extends BaseEntity {
     public static final String TYPE_AR_OVERDUE = "AR_OVERDUE";
     /** 消息类型：应付逾期提醒。 */
     public static final String TYPE_AP_OVERDUE = "AP_OVERDUE";
+    /** 消息类型：劳动合同到期提醒（H4，docs 6.1）。 */
+    public static final String TYPE_HR_CONTRACT_EXPIRE = "HR_CONTRACT_EXPIRE";
 
     private String companyCode;
     private Long receiverId;

@@ -256,6 +256,17 @@ export function approveSalary(id) {
 export function getSalarySlip(id) {
   return request({ url: `/salary/${id}/slip`, method: 'get' })
 }
+
+// ==================== 附件管理（W3）====================
+export function uploadAttachment(data) {
+  return request({ url: '/common/upload', method: 'post', data, headers: { 'Content-Type': 'multipart/form-data' } })
+}
+export function pageAttachment(params) {
+  return request({ url: '/common/attachment/list', method: 'get', params })
+}
+export function getAttachmentFile(id) {
+  return request({ url: `/common/file/${id}`, method: 'get', responseType: 'blob' })
+}
 // ==================== 健康检查 ====================
 export function getHealth() {
   return request({ url: '/system/health', method: 'get' })

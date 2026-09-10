@@ -9,6 +9,7 @@ import com.finance.system.domain.SysUserRole;
 import com.finance.system.dto.UserDTO;
 import com.finance.system.mapper.SysUserMapper;
 import com.finance.system.mapper.SysUserRoleMapper;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,13 +32,16 @@ public class SystemUserService {
     private final SysUserMapper userMapper;
     private final SysUserRoleMapper userRoleMapper;
     private final PasswordEncoder passwordEncoder;
+    private final JdbcTemplate jdbcTemplate;
 
     public SystemUserService(SysUserMapper userMapper,
                              SysUserRoleMapper userRoleMapper,
-                             PasswordEncoder passwordEncoder) {
+                             PasswordEncoder passwordEncoder,
+                             JdbcTemplate jdbcTemplate) {
         this.userMapper = userMapper;
         this.userRoleMapper = userRoleMapper;
         this.passwordEncoder = passwordEncoder;
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     /** 分页（关键词匹配用户名/昵称，可按状态过滤）。 */
@@ -137,6 +141,17 @@ public class SystemUserService {
         requireUser(id);
         userRoleMapper.physicallyDeleteByUserId(id);
         userMapper.deleteById(id);
+    }
+
+    /** 按权限码查拥有该权限的用户 id（H4 劳动合同到期提醒：发给 HR 角色）。 */
+    public List<Long> listUserIdsByPermission(String permCode) {
+        return jdbcTemplate.queryForList(
+                "SELECT DISTINCT ur.user_id FROM sys_user_role ur"
+                        + " JOIN sys_role_menu rm ON rm.role_id = ur.role_id"
+                        + " JOIN sys_menu m ON m.id = rm.menu_id"
+                        + " JOIN sys_user u ON u.id = ur.user_id"
+                        + " WHERE m.perms = ? AND u.deleted = 0",
+                Long.class, permCode);
     }
 
     private SysUser requireUser(Long id) {

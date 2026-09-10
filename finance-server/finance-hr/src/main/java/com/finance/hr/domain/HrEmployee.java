@@ -27,6 +27,8 @@ public class HrEmployee extends BaseEntity {
     private String position;
     private LocalDate hireDate;
     private LocalDate leaveDate;
+    /** 劳动合同到期日（V14；到期前 30 天提醒 HR，docs 6.1）。 */
+    private LocalDate contractExpireDate;
     private String salaryAccount;
     private String status;
     private Long userId;
@@ -121,6 +123,14 @@ public class HrEmployee extends BaseEntity {
 
     public void setHireDate(LocalDate hireDate) {
         this.hireDate = hireDate;
+    }
+
+    public LocalDate getContractExpireDate() {
+        return contractExpireDate;
+    }
+
+    public void setContractExpireDate(LocalDate contractExpireDate) {
+        this.contractExpireDate = contractExpireDate;
     }
 
     public LocalDate getLeaveDate() {
