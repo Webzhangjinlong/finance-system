@@ -53,8 +53,9 @@ public class ArchitectureTest {
                     .layer("Controller").definedBy("com.finance..controller..")
                     .layer("Service").definedBy("com.finance..service..")
                     .layer("Mapper").definedBy("com.finance..mapper..")
+                    .layer("Task").definedBy("com.finance.task..")
                     .whereLayer("Controller").mayNotBeAccessedByAnyLayer()
-                    .whereLayer("Service").mayOnlyBeAccessedByLayers("Controller")
+                    .whereLayer("Service").mayOnlyBeAccessedByLayers("Controller", "Task")
                     .whereLayer("Mapper").mayOnlyBeAccessedByLayers("Service");
 
     @ArchTest

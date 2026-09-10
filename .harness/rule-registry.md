@@ -49,3 +49,6 @@
 3. 每个 Gate 完成后，将新生效规则从"⏳ 未生效"改为"✅ 生效"。
 | R34 | 应收/应付生成幂等：计划到期同步只生成一次（company+plan_id 唯一） | V7 uq_fin_ar_plan/uq_fin_ap_plan 唯一约束 + ArApService.generateAr/ApFromPlan 查存在即返回 + DuplicateKey 兜底（Gate 9 C3） | ContractPlanServiceTest.sync_idempotent_noDuplicateAr | ✅ 生效 |
 | R35 | 超额核销双重拦截：服务校验（累计后超应收/应付/计划金额抛错）+ DB CHECK 兜底 | ArApService.applyReceipt/applyPayment + ContractPlanService.registerReceipt/registerPayment（Gate 9 C3）；DB：ck_fin_ar_received / ck_fin_ap_paid / ck_ctr_plan_paid | ContractPlanServiceTest.registerReceipt_overpay_rejected | ✅ 生效 |
+
+| R36 | 站内消息幂等：同 公司+接收人+类型+业务单+日期 只提醒一次 | V8 uq_sys_message_remind 唯一约束 + MessageService.send 捕获 DuplicateKey 吞并（Gate 10 W2/W4） | ReminderTaskTest.dueReminder_contractWithin30Days_sendsMessageIdempotent / overdueScan_marksPlanOverdueAndSendsMessage（二次执行不重复） | ✅ 生效 |
+| R37 | 计划状态机 OVERDUE 归属：仅 W4 逾期扫描置 OVERDUE（未收付完），核销路径只置 PAID/PARTIAL，禁止手工置逾期 | ContractPlanService.markOverdue 幂等（PAID 跳过）+ registerReceipt/registerPayment 状态回写（Gate 9 约定，Gate 10 落地） | ReminderTaskTest.overdueScan_marksPlanOverdueAndSendsMessage / overdueScan_paidPlanUntouched | ✅ 生效 |

@@ -212,6 +212,15 @@ public class ContractService {
                 .orderByAsc(CtrPaymentPlan::getPlanNo));
     }
 
+    /** 到期窗口内生效合同（W4 到期提醒：end_date 在 [from,to] 且非终止/草拟）。 */
+    public List<CtrContract> listExpiringContracts(String companyCode, LocalDate from, LocalDate to) {
+        return contractMapper.selectList(new LambdaQueryWrapper<CtrContract>()
+                .eq(CtrContract::getCompanyCode, companyCode)
+                .in(CtrContract::getStatus, CtrContract.STATUS_APPROVED,
+                        CtrContract.STATUS_ACTIVE, CtrContract.STATUS_COMPLETED)
+                .between(CtrContract::getEndDate, from, to));
+    }
+
     // ==================== 内部实现 ====================
 
     private CtrContract doCreate(String companyCode, ContractDTO dto) {
