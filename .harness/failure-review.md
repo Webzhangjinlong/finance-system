@@ -59,3 +59,4 @@
 | 页面 403（工资列表） | 浏览器旧 token 权限快照无 hr 权限 | 重新登录获取含 hr 权限新 token | ✅ |
 | V14 迁移 sys_attachment 已存在 / status CHECK 违反 | V1 已建同名表未检索；枚举值未核对 | V14 幂等 ALTER 重写 + 本地重建全新库复现 | ✅ 已固化 L45 |
 | push 被 pre-receive hook 拒绝 | git add -A 误提交 107MB MinIO 二进制 + 日志 | .gitignore 补忽略 + 提交前核对 staged | ✅ 已固化 L46 |
+| 登录日志不落库（失败分支）| ① V1 缺五件套列 insert 报错被吞 ② 补列后 login() @Transactional + 失败抛异常 → 回滚日志 | V15 补列 + login 去 @Transactional + LoginLogWriteTest 真实落库断言 | ✅ 已固化 L47 |

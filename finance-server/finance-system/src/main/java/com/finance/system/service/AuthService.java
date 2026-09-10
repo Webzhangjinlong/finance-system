@@ -16,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -51,7 +50,8 @@ public class AuthService {
         this.loginFailCounter = loginFailCounter;
     }
 
-    @Transactional
+    /** 登录：无多步事务需求（updateLoginInfo 单条、写日志需独立提交）；
+     *  不加 @Transactional —— 失败分支写审计日志后抛业务异常，若在事务内会被回滚导致日志丢失（R17 审计）。 */
     public LoginUserVO login(LoginBody body, String ip) {
         String username = body.getUsername().trim();
         String companyCode = body.getCompanyCode() == null || body.getCompanyCode().isBlank()
