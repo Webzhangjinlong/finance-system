@@ -49,7 +49,7 @@
 |---|--------|--------------|--------|------|
 | W1 | 审批流封装（WorkflowService：start/todo/approve/reject；单人顺序审批一期） | 内部 Service + /workflow/* | 按流程节点 | ✅ Gate 7 |
 | W2 | 消息通知/待办聚合 | GET /message/list、GET /message/unread-count、PUT /message/{id}/read、/read-all | system:message:list（本人隔离） | ✅ Gate 10 |
-| W3 | 附件上传（MinIO + 类型/大小校验） | POST /common/upload | 登录用户 | ⬜ |
+| W3 | 附件上传（MinIO + 类型/大小校验） | POST /common/upload | 登录用户 | ✅ |
 | W4 | 定时任务（@Scheduled：到期提醒 08:00、逾期扫描 08:30） | 内部（com.finance.task.ReminderTask） | 系统 | ✅ Gate 10 |
 
 ## Gate 6 首批建议（认证 + 科目/凭证）
