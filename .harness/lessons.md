@@ -30,6 +30,8 @@
 | L20 | `$ErrorActionPreference='Stop'` 下 PowerShell 把原生命令 stderr 警告（JVM/npm chunk 警告）误判为失败 | PS 5.1 Stop 策略把 native stderr 当错误 | 工具脚本不设 Stop，显式检查 `$LASTEXITCODE`（verify-local.ps1 注释） | ✅ 已固化（工具） |
 | L21 | ArchUnit 扫描测试类导致分层/命名规则误报（测试类访问 Service 被拒） | @AnalyzeClasses 默认包含 test-classes | `importOptions = ImportOption.DoNotIncludeTests.class`（架构规则只管生产代码） | ✅ 已固化（测试） |
 | L22 | PowerShell `Set-Content -Encoding UTF8` 写 Java 源文件带 BOM → javac 报 `非法字符: '\ufeff'` | PS 5.1 的 utf8 = UTF-8 with BOM | Java 源文件一律用 Write 工具（无 BOM）写入；不要用 PS 改源码 | ✅ 已固化（流程） |
+| L23 | 冒烟发现：种子菜单仅含 list 权限码，按钮级权限（add/edit/audit/book/reverse）缺失 → 登录后调用写接口 403 | @PreAuthorize 权限码未在 sys_menu 种子数据落地 | V3__permissions.sql 补全 BUTTON 权限点并授权 admin；新增权限点必须同步种子菜单 | ✅ 已固化（V3 迁移） |
+| L24 | dev 环境启动失败：Flowable 引擎初始化查 act_ge_property 表不存在（database-schema-update=false 且库无 ACT 表） | Flowable 自管理 schema，与 Flyway 业务迁移冲突（L10 重审点实际爆发） | 主配置统一排除 Flowable 16 类；Gate 7 引入 W1 时改用独立 schema 方案 | ✅ 已固化（application.yml） |
 
 ## 待固化（Gate 6 需清零）
 

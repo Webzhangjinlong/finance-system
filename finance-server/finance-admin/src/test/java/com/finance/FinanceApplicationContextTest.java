@@ -15,8 +15,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * 上下文加载 + Flyway 落库验证。
  *
- * <p>上下文加载成功即证明：Flyway 迁移（V1/V2）在测试库执行成功、
- * Flowable 引擎初始化成功、MyBatis-Plus / Redis / Security 配置装配成功。</p>
+ * <p>上下文加载成功即证明：Flyway 迁移（V1/V2/V3）在测试库执行成功、
+ * Flowable 引擎被排除、MyBatis-Plus / Redis / Security 配置装配成功。</p>
  */
 @SpringBootTest
 @ActiveProfiles("test")
@@ -38,7 +38,7 @@ class FinanceApplicationContextTest {
              ResultSet rs = st.executeQuery(
                      "SELECT MAX(version) FROM flyway_schema_history WHERE success = true")) {
             assertThat(rs.next()).isTrue();
-            assertThat(rs.getString(1)).isEqualTo("2");
+            assertThat(rs.getString(1)).isEqualTo("3");
         }
     }
 
