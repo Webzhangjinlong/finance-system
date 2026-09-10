@@ -47,3 +47,5 @@
 1. 新增/变更业务规则 → 同步更新 AGENTS.md 硬约束 + 本表。
 2. 规则若可落到 DB/CI/代码检查，必须落地；纯文档规则标注"文档约束"。
 3. 每个 Gate 完成后，将新生效规则从"⏳ 未生效"改为"✅ 生效"。
+| R34 | 应收/应付生成幂等：计划到期同步只生成一次（company+plan_id 唯一） | V7 uq_fin_ar_plan/uq_fin_ap_plan 唯一约束 + ArApService.generateAr/ApFromPlan 查存在即返回 + DuplicateKey 兜底（Gate 9 C3） | ContractPlanServiceTest.sync_idempotent_noDuplicateAr | ✅ 生效 |
+| R35 | 超额核销双重拦截：服务校验（累计后超应收/应付/计划金额抛错）+ DB CHECK 兜底 | ArApService.applyReceipt/applyPayment + ContractPlanService.registerReceipt/registerPayment（Gate 9 C3）；DB：ck_fin_ar_received / ck_fin_ap_paid / ck_ctr_plan_paid | ContractPlanServiceTest.registerReceipt_overpay_rejected | ✅ 生效 |

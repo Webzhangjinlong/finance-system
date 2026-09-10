@@ -9,8 +9,10 @@ import java.time.LocalDate;
 /**
  * 合同收付款计划（ctr_payment_plan，V1）。
  *
- * <p>合同生效后按条款自动生成（一期：全额一期）；状态 UNPAID 未收付 / PARTIAL 部分 /
- * PAID 已收付（核销回写，Gate 后续）。plan_no 公司内唯一（uq_ctr_plan_no）。</p>
+ * <p>合同生效后按条款自动生成（一期：全额一期）；计划状态 UNPAID 未收付 /
+ * PARTIAL 部分收付 / PAID 已收付 / OVERDUE 已逾期（到期未清，核销回写）；
+ * 到期经 C3 同步生成应收/应付单（幂等），核销后回写已收/已付金额；
+ * paid_amount 由 ck_ctr_plan_paid 约束不超过 amount（超额拦截 R10）。</p>
  */
 @TableName("ctr_payment_plan")
 public class CtrPaymentPlan extends BaseEntity {
@@ -22,6 +24,12 @@ public class CtrPaymentPlan extends BaseEntity {
 
     /** 计划状态：未收付。 */
     public static final String PLAN_STATUS_UNPAID = "UNPAID";
+    /** 计划状态：部分收付。 */
+    public static final String PLAN_STATUS_PARTIAL = "PARTIAL";
+    /** 计划状态：已收付。 */
+    public static final String PLAN_STATUS_PAID = "PAID";
+    /** 计划状态：已逾期（到期未清）。 */
+    public static final String PLAN_STATUS_OVERDUE = "OVERDUE";
 
     private String companyCode;
     private Long contractId;

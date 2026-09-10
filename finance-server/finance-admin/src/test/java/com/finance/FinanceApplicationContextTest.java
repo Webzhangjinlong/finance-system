@@ -38,7 +38,7 @@ class FinanceApplicationContextTest {
              ResultSet rs = st.executeQuery(
                      "SELECT MAX(version) FROM flyway_schema_history WHERE success = true")) {
             assertThat(rs.next()).isTrue();
-            assertThat(rs.getString(1)).isEqualTo("6");
+            assertThat(rs.getString(1)).isEqualTo("7");
         }
     }
 

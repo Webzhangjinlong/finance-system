@@ -6,6 +6,7 @@ import com.finance.contract.domain.CtrContract;
 import com.finance.contract.domain.CtrPaymentPlan;
 import com.finance.contract.dto.ContractDTO;
 import com.finance.contract.dto.ContractSubmitDTO;
+import com.finance.contract.service.ContractPlanService;
 import com.finance.contract.service.ContractService;
 import com.finance.framework.security.SecurityUtils;
 import jakarta.validation.Valid;
@@ -20,22 +21,27 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 /**
- * 合同管理接口（C1/C2，docs 5.1/5.2）：/contract。
+ * 合同管理接口（C1/C2/C3，docs 5.1/5.2/5.3）：/contract。
  *
- * <p>台账维护权限 contract:contract:*；审批动作复用 W1 待办（/workflow/todo 取任务，
- * 审批完成走本控制器 approve/reject 以联动合同状态与计划生成），权限 workflow:task:approve。</p>
+ * <p>台账维护权限 contract:contract:*；计划联动权限 contract:plan:list/sync；
+ * 收付款核销走财务权限 finance:receivable:write；
+ * 审批动作复用 W1 待办（/workflow/todo 取任务，审批完成走本控制器 approve/reject 联动合同状态）。</p>
  */
 @RestController
 @RequestMapping("/contract")
 public class ContractController {
 
     private final ContractService contractService;
+    private final ContractPlanService contractPlanService;
 
-    public ContractController(ContractService contractService) {
+    public ContractController(ContractService contractService, ContractPlanService contractPlanService) {
         this.contractService = contractService;
+        this.contractPlanService = contractPlanService;
     }
 
     /** 合同分页。 */
@@ -111,10 +117,37 @@ public class ContractController {
         return Result.ok();
     }
 
-    /** 收付款计划列表。 */
+    /** 收付款计划列表（进度视图：amount/paid_amount/status）。 */
     @GetMapping("/{id}/plans")
-    @PreAuthorize("hasAuthority('contract:contract:list')")
+    @PreAuthorize("hasAuthority('contract:plan:list')")
     public Result<List<CtrPaymentPlan>> plans(@PathVariable Long id) {
-        return Result.ok(contractService.listPlans(SecurityUtils.getCompanyCode(), id));
+        return Result.ok(contractPlanService.listPlans(SecurityUtils.getCompanyCode(), id));
+    }
+
+    /** 计划同步：到期计划 → 生成应收/应付单（幂等）。 */
+    @PostMapping("/{id}/plans/sync")
+    @PreAuthorize("hasAuthority('contract:plan:sync')")
+    public Result<Integer> syncPlans(@PathVariable Long id) {
+        return Result.ok(contractPlanService.syncDuePlans(SecurityUtils.getCompanyCode(), id));
+    }
+
+    /** 收款核销：回写应收单 + 计划已收金额/状态（超额拦截）。 */
+    @PostMapping("/plans/{planId}/receipt")
+    @PreAuthorize("hasAuthority('finance:receivable:write')")
+    public Result<CtrPaymentPlan> receipt(@PathVariable Long planId,
+                                          @RequestParam BigDecimal amount,
+                                          @RequestParam(required = false) String remark) {
+        return Result.ok(contractPlanService.registerReceipt(SecurityUtils.getCompanyCode(),
+                planId, amount, LocalDate.now(), remark));
+    }
+
+    /** 付款核销：回写应付单 + 计划已付金额/状态（超额拦截）。 */
+    @PostMapping("/plans/{planId}/payment")
+    @PreAuthorize("hasAuthority('finance:receivable:write')")
+    public Result<CtrPaymentPlan> payment(@PathVariable Long planId,
+                                          @RequestParam BigDecimal amount,
+                                          @RequestParam(required = false) String remark) {
+        return Result.ok(contractPlanService.registerPayment(SecurityUtils.getCompanyCode(),
+                planId, amount, LocalDate.now(), remark));
     }
 }
