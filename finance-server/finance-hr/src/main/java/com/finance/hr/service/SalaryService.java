@@ -142,14 +142,14 @@ public class SalaryService {
                 salary.setStatus(HrSalary.STATUS_DRAFT);
             }
             BigDecimal absentDeduct = absentDeduction(companyCode, emp, year, month);
-            salary.setOtherDeduct(salary.getOtherDeduct().add(absentDeduct));
-            BigDecimal tax = cumulativeWithholdingTax(companyCode, emp, salary, year, month);
+            BigDecimal tax = cumulativeWithholdingTax(companyCode, emp, salary, year, month, absentDeduct);
             salary.setTax(tax);
             BigDecimal gross = salary.getBaseSalary().add(salary.getBonus())
                     .add(salary.getAllowance()).add(salary.getOvertimePay());
             BigDecimal net = gross.subtract(salary.getSocialSecurity())
                     .subtract(salary.getHousingFund())
                     .subtract(salary.getOtherDeduct())
+                    .subtract(absentDeduct)
                     .subtract(tax);
             salary.setNetPay(net.max(BigDecimal.ZERO));
             if (salary.getId() == null) {
@@ -211,7 +211,7 @@ public class SalaryService {
      * 本期个税 = 累计应预扣预缴税额 − 本年 1..month-1 已缴个税。
      */
     BigDecimal cumulativeWithholdingTax(String companyCode, HrEmployee emp,
-                                        HrSalary current, int year, int month) {
+                                        HrSalary current, int year, int month, BigDecimal absentDeduct) {
         BigDecimal cumulativeTaxableIncome = BigDecimal.ZERO;
         BigDecimal cumulativePaidTax = BigDecimal.ZERO;
         BigDecimal cumulativeSocial = BigDecimal.ZERO;
@@ -231,7 +231,10 @@ public class SalaryService {
             }
             BigDecimal gross = zero(s.getBaseSalary()).add(zero(s.getBonus()))
                     .add(zero(s.getAllowance())).add(zero(s.getOvertimePay()))
-                    .subtract(zero(s.getOtherDeduct())); // 缺勤等扣款先减收入额，再算税（收入口径）
+                    .subtract(zero(s.getOtherDeduct()));
+            if (m == month) {
+                gross = gross.subtract(absentDeduct); // 当月缺勤扣款先减收入额（收入口径）
+            }
             cumulativeTaxableIncome = cumulativeTaxableIncome.add(gross);
             cumulativeSocial = cumulativeSocial
                     .add(zero(s.getSocialSecurity())).add(zero(s.getHousingFund()));
