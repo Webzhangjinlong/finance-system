@@ -21,3 +21,12 @@ Thumbs.db
 .env
 .env.*
 *.pem
+
+# === 运行日志与临时产物（W3/H4 追加）===
+*.log
+*.log.err
+*.err
+_jarcheck2/
+tools/minio/
+finance-server/finance-admin/hs_err_pid*.log
+finance-server/finance-admin/replay_pid*.log

@@ -4,6 +4,9 @@ import com.finance.contract.domain.CtrContract;
 import com.finance.contract.domain.CtrPaymentPlan;
 import com.finance.contract.service.ContractPlanService;
 import com.finance.contract.service.ContractService;
+import com.finance.hr.domain.HrEmployee;
+import com.finance.hr.service.HrService;
+import com.finance.system.service.SystemUserService;
 import com.finance.system.domain.SysMessage;
 import com.finance.system.service.MessageService;
 import org.slf4j.Logger;
@@ -30,15 +33,21 @@ public class ReminderTask {
     private final ContractService contractService;
     private final ContractPlanService contractPlanService;
     private final MessageService messageService;
+    private final HrService hrService;
+    private final SystemUserService systemUserService;
     private final JdbcTemplate jdbcTemplate;
 
     public ReminderTask(ContractService contractService,
                         ContractPlanService contractPlanService,
                         MessageService messageService,
+                        HrService hrService,
+                        SystemUserService systemUserService,
                         JdbcTemplate jdbcTemplate) {
         this.contractService = contractService;
         this.contractPlanService = contractPlanService;
         this.messageService = messageService;
+        this.hrService = hrService;
+        this.systemUserService = systemUserService;
         this.jdbcTemplate = jdbcTemplate;
     }
 
@@ -70,6 +79,33 @@ public class ReminderTask {
             }
         }
         log.info("逾期扫描任务完成：{} 条计划标记逾期", marked);
+    }
+
+    /** 08:10 劳动合同到期提醒（H4，docs 6.1）：在职且 30 天内到期 → 站内消息给 HR 角色用户。 */
+    @Scheduled(cron = "0 10 8 * * ?")
+    public void contractExpiryReminder() {
+        LocalDate today = LocalDate.now();
+        LocalDate end = today.plusDays(30);
+        log.info("劳动合同到期提醒任务启动：today={} window=+30d", today);
+        int sent = 0;
+        for (String companyCode : listCompanies()) {
+            List<HrEmployee> expiring = hrService.listContractExpiring(companyCode, today, end);
+            if (expiring.isEmpty()) {
+                continue;
+            }
+            for (Long receiverId : systemUserService.listUserIdsByPermission("hr:employee:add")) {
+                for (HrEmployee emp : expiring) {
+                    messageService.send(companyCode, receiverId, SysMessage.TYPE_HR_CONTRACT_EXPIRE,
+                            "劳动合同即将到期",
+                            "员工 " + emp.getEmpNo() + "（" + emp.getEmpName()
+                                    + "）劳动合同将于 " + emp.getContractExpireDate()
+                                    + " 到期（30 天内），请及时办理续签。",
+                            "EMPLOYEE", emp.getId(), today);
+                    sent++;
+                }
+            }
+        }
+        log.info("劳动合同到期提醒任务完成：{} 条提醒", sent);
     }
 
     // ==================== 内部实现 ====================
@@ -150,7 +186,9 @@ public class ReminderTask {
     private List<String> listCompanies() {
         return jdbcTemplate.queryForList(
                 "SELECT DISTINCT company_code FROM ctr_contract "
-                        + "UNION SELECT DISTINCT company_code FROM ctr_payment_plan",
+                        + "UNION SELECT DISTINCT company_code FROM ctr_payment_plan "
+                        + "UNION SELECT DISTINCT company_code FROM hr_employee "
+                        + "UNION SELECT DISTINCT company_code FROM hr_salary",
                 String.class);
     }
 }

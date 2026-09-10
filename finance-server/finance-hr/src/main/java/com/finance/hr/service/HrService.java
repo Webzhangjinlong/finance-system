@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -170,6 +171,7 @@ public class HrService {
         emp.setPosition(dto.getPosition());
         emp.setHireDate(dto.getHireDate());
         emp.setLeaveDate(dto.getLeaveDate());
+        emp.setContractExpireDate(dto.getContractExpireDate());
         emp.setSalaryAccount(dto.getSalaryAccount());
         emp.setStatus(StringUtils.hasText(dto.getStatus()) ? dto.getStatus() : HrEmployee.STATUS_ONBOARD);
         emp.setUserId(dto.getUserId());
@@ -199,6 +201,7 @@ public class HrService {
         emp.setPosition(dto.getPosition());
         emp.setHireDate(dto.getHireDate());
         emp.setLeaveDate(dto.getLeaveDate());
+        emp.setContractExpireDate(dto.getContractExpireDate());
         emp.setSalaryAccount(dto.getSalaryAccount());
         emp.setStatus(StringUtils.hasText(dto.getStatus()) ? dto.getStatus() : HrEmployee.STATUS_ONBOARD);
         emp.setUserId(dto.getUserId());
@@ -273,6 +276,16 @@ public class HrService {
             throw new BusinessException("部门不存在");
         }
         return dept;
+    }
+
+    /** 劳动合同到期提醒（H4，docs 6.1）：在职且到期日在 [from,to] 内的员工。 */
+    public List<HrEmployee> listContractExpiring(String companyCode, LocalDate from, LocalDate to) {
+        return employeeMapper.selectList(new LambdaQueryWrapper<HrEmployee>()
+                .eq(HrEmployee::getCompanyCode, companyCode)
+                .eq(HrEmployee::getStatus, HrEmployee.STATUS_ONBOARD)
+                .isNotNull(HrEmployee::getContractExpireDate)
+                .between(HrEmployee::getContractExpireDate, from, to)
+                .orderByAsc(HrEmployee::getContractExpireDate));
     }
 
     private HrEmployee requireEmployee(String companyCode, Long id) {

@@ -175,6 +175,58 @@ class ReminderTaskTest {
         return contractService.getById(company, c.getId());
     }
 
+
+    @Test
+    void contractExpiryReminder_within30Days_sendsMessageToHrIdempotent() {
+        Long empId = createEmployee(LocalDate.now().plusDays(10));
+        try {
+            reminderTask.contractExpiryReminder();
+            List<SysMessage> messages = allMessages();
+            assertThat(messages).hasSize(1);
+            SysMessage m = messages.get(0);
+            assertThat(m.getMessageType()).isEqualTo(SysMessage.TYPE_HR_CONTRACT_EXPIRE);
+            assertThat(m.getReceiverId()).isEqualTo(adminUserId);
+            assertThat(m.getBusinessType()).isEqualTo("EMPLOYEE");
+            assertThat(m.getBusinessId()).isEqualTo(empId);
+            assertThat(m.getRemindDate()).isEqualTo(LocalDate.now());
+
+            // 幂等：同单同日不重复提醒（uq_sys_message_remind）
+            reminderTask.contractExpiryReminder();
+            assertThat(allMessages()).hasSize(1);
+        } finally {
+            cleanHrData();
+        }
+    }
+
+    @Test
+    void contractExpiryReminder_beyond30Days_noMessage() {
+        createEmployee(LocalDate.now().plusDays(40));
+        try {
+            reminderTask.contractExpiryReminder();
+            assertThat(allMessages()).isEmpty();
+        } finally {
+            cleanHrData();
+        }
+    }
+
+    /** 插入一条在职员工（自定义 id 段，不干扰其他测试）。 */
+    private Long createEmployee(LocalDate expireDate) {
+        long id = 9_0000_0000_0000_0000L + SEQ.incrementAndGet();
+        jdbcTemplate.update(
+                "INSERT INTO hr_employee (id, company_code, emp_no, emp_name, gender, dept_id, position,"
+                        + " hire_date, contract_expire_date, status, create_by, create_time, deleted)"
+                        + " VALUES (?, 'DEMO', ?, '测试员工', 'MALE', NULL, 'HR', ?, ?, 'ONBOARD', 'admin', NOW(), 0)",
+                id, "TC" + SEQ.get(), LocalDate.now().minusYears(1), expireDate);
+        return id;
+    }
+
+    private void cleanHrData() {
+        jdbcTemplate.update("DELETE FROM hr_salary_item");
+        jdbcTemplate.update("DELETE FROM hr_salary");
+        jdbcTemplate.update("DELETE FROM hr_attendance");
+        jdbcTemplate.update("DELETE FROM hr_employee");
+    }
+
     private List<SysMessage> allMessages() {
         PageResult<SysMessage> p = messageService.listMessages("DEMO", adminUserId, false, 1, 100);
         return p.getRecords();

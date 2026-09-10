@@ -78,6 +78,11 @@ const routes = [
         meta: { title: '菜单管理' }
       },
       {
+        path: 'system/attachment',
+        component: () => import('@/views/system/attachment/index.vue'),
+        meta: { title: '附件管理' }
+      },
+      {
         path: 'hr/employee',
         component: () => import('@/views/hr/employee/index.vue'),
         meta: { title: '员工档案' }
