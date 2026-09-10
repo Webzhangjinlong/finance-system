@@ -57,7 +57,7 @@ public class WorkflowService {
                 .eq(WfProcessInstance::getBusinessType, businessType)
                 .eq(WfProcessInstance::getBusinessId, businessId)
                 .last("LIMIT 1"));
-        if (exist != null) {
+        if (exist != null && "RUNNING".equals(exist.getStatus())) {
             throw new BusinessException("该业务单据已发起流程，禁止重复发起（状态：" + exist.getStatus() + "）");
         }
 
@@ -84,7 +84,19 @@ public class WorkflowService {
         record.setStartedBy(SecurityUtils.getUsername());
         record.setStartedAt(OffsetDateTime.now());
         try {
-            processInstanceMapper.insert(record);
+            if (exist != null) {
+
+                // 已结束实例（APPROVED/REJECTED）：复用记录行重新发起（驳回可重提，W1 增强）
+
+                record.setId(exist.getId());
+
+                processInstanceMapper.updateById(record);
+
+            } else {
+
+                processInstanceMapper.insert(record);
+
+            }
         } catch (DuplicateKeyException e) {
             throw new BusinessException("该业务单据已发起流程（唯一约束兜底）", e);
         }

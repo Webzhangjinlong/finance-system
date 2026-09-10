@@ -119,6 +119,28 @@ export function getArAging(params) {
 export function getApAging(params) {
   return request({ url: '/finance/ap/aging', method: 'get', params })
 }
+// ==================== 费用报销（F6） ====================
+export function pageExpense(params) {
+  return request({ url: '/expense', method: 'get', params })
+}
+export function getExpense(id) {
+  return request({ url: /expense/, method: 'get' })
+}
+export function createExpense(data) {
+  return request({ url: '/expense', method: 'post', data })
+}
+export function updateExpense(id, data) {
+  return request({ url: /expense/, method: 'put', data })
+}
+export function deleteExpense(id) {
+  return request({ url: /expense/, method: 'delete' })
+}
+export function submitExpense(id, data) {
+  return request({ url: /expense//submit, method: 'put', data })
+}
+export function payExpense(id) {
+  return request({ url: /expense//pay, method: 'put' })
+}
 // ==================== 健康检查 ====================
 export function getHealth() {
   return request({ url: '/system/health', method: 'get' })

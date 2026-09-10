@@ -48,7 +48,13 @@ const routes = [
         path: 'report',
         name: 'Report',
         component: () => import('@/views/report/index.vue'),
-        meta: { title: '财务报表' }
+        meta: { title: '财务报表' },
+      },
+      {
+        path: 'expense',
+        name: 'Expense',
+        component: () => import('@/views/expense/index.vue'),
+        meta: { title: '费用报销' }
       },
       {
         path: 'aging',
