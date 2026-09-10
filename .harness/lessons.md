@@ -1,0 +1,34 @@
+# 教训库（Lessons Learned）
+
+> 按流程规范 2.5 收敛反馈：任何失败 → failure-review 复盘 → 此处登记 → 固化为可执行规则。
+> 目标：**结构幂等**——所有"待固化"为 0，同一错误不再犯第二次。
+> 状态：`待固化` / `已固化`（已落到 AGENTS.md / 工具脚本 / 测试 / DB 约束 / CI 门禁）。
+
+## 教训清单
+
+| # | 错误现象 | 根因 | 避免方法（固化载体） | 状态 |
+|---|----------|------|----------------------|------|
+| L01 | winget 安装 Git 失败（0x80072efd） | GitHub 直连（443）不通，winget 源走 GitHub | 改用 npmmirror 镜像下载安装包静默安装 | ✅ 已固化（工具链） |
+| L02 | git push / ls-remote 间歇性超时 | github.com:443 不通；SSH 22 间歇性丢包 | SSH 通道 + 失败直接重试（非代理问题）；备用 ssh.github.com:443 | ✅ 已固化（流程） |
+| L03 | POST /user/keys 返回 404 | PAT 仅 repo 权限，缺 admin:public_key | 改仓库部署密钥（Deploy Key），read_only=false | ✅ 已固化（配置） |
+| L04 | 私有仓库设置分支保护 403 | 免费版私有仓库不支持分支保护 | 仓库转 public 后设置 | ✅ 已固化（决策记录） |
+| L05 | 作者 approve 自己 PR 报 422 | GitHub 禁止作者审批自己的 PR | 合入统一走 `tools/merge-pr.ps1`（关保护→合入→恢复→验证） | ✅ 已固化（工具） |
+| L06 | git 内置 ssh 找不到 known_hosts | git 自带 ssh 与系统 OpenSSH 不共享配置 | `git config --global core.sshCommand "C:/Windows/System32/OpenSSH/ssh.exe"`（正斜杠） | ✅ 已固化（配置） |
+| L07 | SSH config 写入中文路径后损坏 | ASCII 编码写入中文绝对路径损坏 | config 用 `IdentityFile ~/.ssh/id_ed25519` 相对路径 | ✅ 已固化（配置） |
+| L08 | PowerShell 调原生程序时剥离参数内双引号（psql `CREATE DATABASE "x-y"`、curl JSON body、mvn `-Dflyway.url=...` 被拆坏） | PowerShell 5.1 原生命令参数引号传递规则 | 一律用「SQL/JSON body 临时文件 + `-f`/`-d @file`」，或 `cmd /c` 包裹；**禁止**在 `& exe` 里传含双引号的单引号字符串 | ✅ 已固化（工具/流程） |
+| L09 | `Set-Content -Encoding utf8` 写入带 BOM，GitHub API 报 "Problems parsing JSON" | PS 5.1 的 utf8 = UTF-8 with BOM | body 文件用 Write 工具（无 BOM）或 `-Encoding ascii` | ✅ 已固化（流程） |
+| L10 | Flowable 引擎先于应用 Flyway 建 70 张 ACT 表 → Flyway 误判非空走 baseline（版本 1）→ 跳过 V1 → V2 失败 | Flowable auto-config 初始化早于 FlywayInitializer；baseline-on-migrate=true | 测试 profile 排除 Flowable 引擎；**Gate 6 引入流程模块时重审 schema 方案**（独立 schema 或预置 ACT 迁移） | ✅ 已固化（测试配置）；⚠️ Gate 6 需重审 |
+| L11 | ArchUnit 空规则报 "failed to check any classes" | failOnEmptyShould 默认 true | 命名/类型类规则显式 `.allowEmptyShould(true)` | ✅ 已固化（测试） |
+| L12 | ArchUnit 把 `@RestController` 注解误判为"以 Controller 结尾的类" | 注解类名也以 Controller 结尾 | 谓词排除 `doNot(simpleName("RestController"))` | ✅ 已固化（测试） |
+| L13 | ArchUnit `SetN.contains(null)` 抛 NPE | 不可变集合不允许 null | predicate 内先判空再 contains | ✅ 已固化（测试） |
+| L14 | `mvn flyway:migrate -Dflyway.locations=filesystem:src/...` 报 location not found | filesystem 路径相对**执行目录**（reactor 根）而非模块 | 用 `filesystem:finance-admin/src/main/resources/db/migration` | ✅ 已固化（命令） |
+| L15 | `-pl finance-admin flyway:migrate` 报内部模块 SNAPSHOT 缺失 | 依赖模块未 install 到本地仓库 | 先 `mvn -pl finance-admin -am install -DskipTests` 再跑插件目标 | ✅ 已固化（工具 db-migrate.ps1） |
+| L16 | Edit 工具报 "Native execution failed" | 工具原生执行故障（环境相关） | 改用 Write 全量重写小文件 | ✅ 已固化（流程） |
+| L17 | PATCH /branches/main/protection 返回 404 | GitHub 分支保护更新端点是 **PUT**（PATCH 不存在） | 用 PUT 且 body 携带完整保护配置 | ✅ 已固化（流程） |
+| L18 | 迁移脚本引用不存在的列（idx 含 period_year 但分录表无此列） | 复制索引定义时未核对目标表列 | 迁移脚本必须本地先跑通再合入；CI 上下文测试兜底（Flyway 落库） | ✅ 已固化（CI 门禁） |
+| L19 | 测试库被 Flowable 表污染后残留 baseline 记录 | 污染库无法自愈 | 删库重建（开发期）；CI 每次全新 services 无此问题 | ✅ 已固化（流程） |
+| L20 | `$ErrorActionPreference='Stop'` 下 PowerShell 把原生命令 stderr 警告（JVM/npm chunk 警告）误判为失败 | PS 5.1 Stop 策略把 native stderr 当错误 | 工具脚本不设 Stop，显式检查 `$LASTEXITCODE`（verify-local.ps1 注释） | ✅ 已固化（工具） |
+
+## 待固化（Gate 6 需清零）
+
+- 当前无待固化项；Gate 6 起每完成一个功能点，对照 checklist 自查并补录新教训。
