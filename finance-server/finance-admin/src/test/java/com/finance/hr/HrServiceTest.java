@@ -195,7 +195,6 @@ class HrServiceTest {
         assertThat(paid.getPaidAt()).isNotNull();
 
         SalaryDTO dto = new SalaryDTO();
-        dto.setEmployeeId(empId);
         dto.setBaseSalary(new BigDecimal("30000.00"));
         assertThatThrownBy(() -> salaryService.editDraft(COMPANY, id, dto))
                 .isInstanceOf(BusinessException.class)
