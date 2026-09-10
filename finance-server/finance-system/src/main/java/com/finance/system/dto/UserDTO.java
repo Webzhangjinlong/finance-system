@@ -1,30 +1,38 @@
-package com.finance.system.domain;
+package com.finance.system.dto;
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableName;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+
 import java.util.List;
-import com.finance.common.core.domain.BaseEntity;
 
 /**
- * 用户实体（sys_user）。
+ * 用户创建/编辑入参（S2）。
  */
-@TableName("sys_user")
-public class SysUser extends BaseEntity {
+public class UserDTO {
 
-    /** 用户状态：正常。 */
-    public static final String STATUS_ACTIVE = "ACTIVE";
-    /** 用户状态：停用。 */
-    public static final String STATUS_DISABLED = "DISABLED";
-
+    @NotBlank(message = "用户名不能为空")
+    @Size(min = 3, max = 32, message = "用户名长度 3-32")
+    @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "用户名仅允许字母数字下划线")
     private String username;
+
+    /** 创建时必填；编辑时留空表示不改密码。 */
+    @Size(min = 6, max = 64, message = "密码长度 6-64")
     private String password;
+
+    @Size(max = 64, message = "昵称过长")
     private String nickname;
+
+    @Size(max = 128, message = "邮箱过长")
     private String email;
+
+    @Size(max = 20, message = "手机号过长")
     private String phone;
-    private String avatar;
+
     private String status;
-    private String loginIp;
-    private java.time.OffsetDateTime loginDate;
+
+    /** 初始分配的角色 ID（可选）。 */
+    private List<Long> roleIds;
 
     public String getUsername() {
         return username;
@@ -66,14 +74,6 @@ public class SysUser extends BaseEntity {
         this.phone = phone;
     }
 
-    public String getAvatar() {
-        return avatar;
-    }
-
-    public void setAvatar(String avatar) {
-        this.avatar = avatar;
-    }
-
     public String getStatus() {
         return status;
     }
@@ -81,26 +81,6 @@ public class SysUser extends BaseEntity {
     public void setStatus(String status) {
         this.status = status;
     }
-
-    public String getLoginIp() {
-        return loginIp;
-    }
-
-    public void setLoginIp(String loginIp) {
-        this.loginIp = loginIp;
-    }
-
-    public java.time.OffsetDateTime getLoginDate() {
-        return loginDate;
-    }
-
-    public void setLoginDate(java.time.OffsetDateTime loginDate) {
-        this.loginDate = loginDate;
-    }
-
-    /** 用户拥有的角色 ID（非表字段，详情装配）。 */
-    @TableField(exist = false)
-    private List<Long> roleIds;
 
     public List<Long> getRoleIds() {
         return roleIds;

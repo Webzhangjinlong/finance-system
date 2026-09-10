@@ -53,3 +53,4 @@
 
 | L39 | V10 菜单 id=1206 冲突：1206 已被 V7 应收应付占用（sys_menu_pkey 唯一冲突）→ 首次 mvn test 上下文加载失败 100 例全 Error | 新迁移插入固定 id 前未检查历史迁移已占用；Flyway 失败整体回滚但半状态需手工清理 | 写迁移前先 psql 查对应 id 区间占用；失败后 DROP 半建表 + 清理 flyway_schema_history 再重跑 | ✅ 已固化（流程） |
 | L40 | W1 审批流"驳回后重新提交"被幂等拦截：start 只要存在历史实例即拒绝，且唯一约束兜底双重拦截（驳回重提 → "唯一约束兜底"） | W1 幂等语义过严：已结束（APPROVED/REJECTED）实例应允许重新发起，仅 RUNNING 需拦截 | WorkflowService.start 改为仅 RUNNING 拒绝；已结束实例复用记录行 updateById（驳回可重提，兼容合同/报销，Flowable 历史仍在 act_hi_*）；测试补驳回重提用例 | ✅ 已固化（代码+测试） |
+| L41 | S2 分配角色/菜单"先清后插"踩唯一约束：MyBatis-Plus delete() 是逻辑删（UPDATE deleted=1），残留行仍占用 uq_sys_user_role/uq_sys_role_menu → 重新插入同组合撞唯一约束 | 对唯一联合约束表使用逻辑删除做"清空"语义错误；逻辑删除行对唯一约束仍可见 | 关联表（sys_user_role/sys_role_menu）清空改用物理删除 @Delete 自定义 SQL；业务主表（sys_user/sys_role）保留逻辑删除；教训：唯一约束表"先清后插"必须物理清 | ✅ 已固化（代码+测试） |

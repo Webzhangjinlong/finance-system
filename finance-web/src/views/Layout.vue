@@ -13,6 +13,11 @@
 <el-menu-item index="/report"><el-icon><TrendCharts /></el-icon>财务报表</el-menu-item>
         <el-menu-item index="/expense"><el-icon><Tickets /></el-icon>费用报销</el-menu-item>
 <el-menu-item index="/aging"><el-icon><Timer /></el-icon>应收应付账龄</el-menu-item>
+<el-sub-menu index="/system"><template #title><el-icon><Setting /></el-icon><span>系统管理</span></template>
+  <el-menu-item index="/system/user"><el-icon><User /></el-icon>用户管理</el-menu-item>
+  <el-menu-item index="/system/role"><el-icon><Avatar /></el-icon>角色管理</el-menu-item>
+  <el-menu-item index="/system/menu"><el-icon><Menu /></el-icon>菜单管理</el-menu-item>
+</el-sub-menu>
       </el-menu>
     </el-aside>
     <el-container>
@@ -43,7 +48,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { HomeFilled, List, Document, Files, Checked, Bell, TrendCharts, Timer, Tickets } from '@element-plus/icons-vue'
+import { HomeFilled, List, Document, Files, Checked, Bell, TrendCharts, Timer, Tickets, Setting, User, Avatar, Menu } from '@element-plus/icons-vue'
 import { unreadCount } from '@/api'
 import { useUserStore } from '@/stores/user'
 

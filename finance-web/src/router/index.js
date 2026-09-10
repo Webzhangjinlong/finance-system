@@ -61,6 +61,21 @@ const routes = [
         name: 'Aging',
         component: () => import('@/views/aging/index.vue'),
         meta: { title: '应收应付账龄' }
+      },
+      {
+        path: 'system/user',
+        component: () => import('@/views/system/user/index.vue'),
+        meta: { title: '用户管理' }
+      },
+      {
+        path: 'system/role',
+        component: () => import('@/views/system/role/index.vue'),
+        meta: { title: '角色管理' }
+      },
+      {
+        path: 'system/menu',
+        component: () => import('@/views/system/menu/index.vue'),
+        meta: { title: '菜单管理' }
       }
     ]
   }

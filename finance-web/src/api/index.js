@@ -141,6 +141,64 @@ export function submitExpense(id, data) {
 export function payExpense(id) {
   return request({ url: /expense//pay, method: 'put' })
 }
+// ==================== 系统管理（S2） ====================
+export function pageUser(params) {
+  return request({ url: '/system/user/page', method: 'get', params })
+}
+export function getUser(id) {
+  return request({ url: `/system/user/${id}`, method: 'get' })
+}
+export function createUser(data) {
+  return request({ url: '/system/user', method: 'post', data })
+}
+export function updateUser(id, data) {
+  return request({ url: `/system/user/${id}`, method: 'put', data })
+}
+export function deleteUser(id) {
+  return request({ url: `/system/user/${id}`, method: 'delete' })
+}
+export function resetUserPwd(id, data) {
+  return request({ url: `/system/user/${id}/reset-pwd`, method: 'put', data })
+}
+export function assignUserRoles(id, data) {
+  return request({ url: `/system/user/${id}/roles`, method: 'put', data })
+}
+export function pageRole(params) {
+  return request({ url: '/system/role/page', method: 'get', params })
+}
+export function listRole() {
+  return request({ url: '/system/role/list', method: 'get' })
+}
+export function getRole(id) {
+  return request({ url: `/system/role/${id}`, method: 'get' })
+}
+export function createRole(data) {
+  return request({ url: '/system/role', method: 'post', data })
+}
+export function updateRole(id, data) {
+  return request({ url: `/system/role/${id}`, method: 'put', data })
+}
+export function deleteRole(id) {
+  return request({ url: `/system/role/${id}`, method: 'delete' })
+}
+export function assignRoleMenus(id, data) {
+  return request({ url: `/system/role/${id}/menus`, method: 'put', data })
+}
+export function menuTree() {
+  return request({ url: '/system/menu/tree', method: 'get' })
+}
+export function getMenu(id) {
+  return request({ url: `/system/menu/${id}`, method: 'get' })
+}
+export function createMenu(data) {
+  return request({ url: '/system/menu', method: 'post', data })
+}
+export function updateMenu(id, data) {
+  return request({ url: `/system/menu/${id}`, method: 'put', data })
+}
+export function deleteMenu(id) {
+  return request({ url: `/system/menu/${id}`, method: 'delete' })
+}
 // ==================== 健康检查 ====================
 export function getHealth() {
   return request({ url: '/system/health', method: 'get' })
