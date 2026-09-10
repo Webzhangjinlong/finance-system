@@ -199,6 +199,63 @@ export function updateMenu(id, data) {
 export function deleteMenu(id) {
   return request({ url: `/system/menu/${id}`, method: 'delete' })
 }
+// ==================== 人事（H1 部门/员工） ====================
+export function departmentTree() {
+  return request({ url: '/hr/department/tree', method: 'get' })
+}
+export function createDepartment(data) {
+  return request({ url: '/hr/department', method: 'post', data })
+}
+export function updateDepartment(id, data) {
+  return request({ url: `/hr/department/${id}`, method: 'put', data })
+}
+export function deleteDepartment(id) {
+  return request({ url: `/hr/department/${id}`, method: 'delete' })
+}
+export function pageEmployee(params) {
+  return request({ url: '/hr/employee/page', method: 'get', params })
+}
+export function getEmployee(id) {
+  return request({ url: `/hr/employee/${id}`, method: 'get' })
+}
+export function createEmployee(data) {
+  return request({ url: '/hr/employee', method: 'post', data })
+}
+export function updateEmployee(id, data) {
+  return request({ url: `/hr/employee/${id}`, method: 'put', data })
+}
+export function updateEmployeeStatus(id, status) {
+  return request({ url: `/hr/employee/${id}/status`, method: 'put', params: { status } })
+}
+export function deleteEmployee(id) {
+  return request({ url: `/hr/employee/${id}`, method: 'delete' })
+}
+// ==================== 考勤（H2） ====================
+export function pageAttendance(params) {
+  return request({ url: '/hr/attendance/page', method: 'get', params })
+}
+export function upsertAttendance(data) {
+  return request({ url: '/hr/attendance', method: 'post', data })
+}
+// ==================== 工资（H3） ====================
+export function pageSalary(params) {
+  return request({ url: '/salary/list', method: 'get', params })
+}
+export function editSalaryDraft(id, data) {
+  return request({ url: `/salary/${id}`, method: 'put', data })
+}
+export function calculateSalary(params) {
+  return request({ url: '/salary/calculate', method: 'post', params })
+}
+export function submitSalary(id) {
+  return request({ url: `/salary/${id}/submit`, method: 'put' })
+}
+export function approveSalary(id) {
+  return request({ url: `/salary/${id}/approve`, method: 'put' })
+}
+export function getSalarySlip(id) {
+  return request({ url: `/salary/${id}/slip`, method: 'get' })
+}
 // ==================== 健康检查 ====================
 export function getHealth() {
   return request({ url: '/system/health', method: 'get' })
