@@ -163,9 +163,11 @@ class HrServiceTest {
         attendance("2026-01-05", HrAttendance.STATUS_ABSENT);
         attendance("2026-01-06", HrAttendance.STATUS_ABSENT);
         salaryService.calculate(COMPANY, 2026, 1, empId);
+        salaryService.calculate(COMPANY, 2026, 1, empId); // 幂等：重复核算不累加扣款
         HrSalary s = salaryOf(2026, 1);
-        // 缺勤扣款 = 2 × (21750/21.75) = 2 × 1000 = 2000；应税 = 21750-5000-2000 = 14750 → 3% = 442.50
-        assertThat(s.getOtherDeduct()).isEqualByComparingTo("2000.00");
+        // 缺勤扣款 = 2 × (21750/21.75) = 2 × 1000 = 2000（派生项，不落 other_deduct）
+        // 应税 = (21750-2000) - 5000 = 14750 → 3% = 442.50
+        assertThat(s.getOtherDeduct()).isEqualByComparingTo("0.00");
         assertThat(s.getTax()).isEqualByComparingTo("442.50");
         // 实发 = 21750 - 2000 - 442.50 = 19307.50
         assertThat(s.getNetPay()).isEqualByComparingTo("19307.50");
