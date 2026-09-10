@@ -57,3 +57,5 @@
 | 工资条弹窗空/GET /salary/{id}/slip 500 | 雪花 ID 超 JS 安全整数，Jackson 数字序列化精度丢失 → 前端取错误 id 请求 | JacksonConfig 全局 Long→String；前端/直连数据对比定位"假象" | ✅ 已固化 L44（PR#24） |
 | verify-local FAIL（npm ci exit -4048） | npm ci 偶发权限/网络失败 | npm install 重装（registry npmmirror）后 build 通过 | ✅ |
 | 页面 403（工资列表） | 浏览器旧 token 权限快照无 hr 权限 | 重新登录获取含 hr 权限新 token | ✅ |
+| V14 迁移 sys_attachment 已存在 / status CHECK 违反 | V1 已建同名表未检索；枚举值未核对 | V14 幂等 ALTER 重写 + 本地重建全新库复现 | ✅ 已固化 L45 |
+| push 被 pre-receive hook 拒绝 | git add -A 误提交 107MB MinIO 二进制 + 日志 | .gitignore 补忽略 + 提交前核对 staged | ✅ 已固化 L46 |
