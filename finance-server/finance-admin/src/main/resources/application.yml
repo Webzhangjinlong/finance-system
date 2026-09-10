@@ -23,24 +23,6 @@ spring:
     multipart:
       max-file-size: 20MB
       max-request-size: 20MB
-  autoconfigure:
-    exclude:
-      # L10 重审点：开发/测试环境排除 Flowable 引擎（避免其先于业务建表/启动失败）
-      # Gate 7 引入流程模块（W1 审批流）时改为独立 schema 方案并移除本清单
-      - org.flowable.spring.boot.ProcessEngineAutoConfiguration
-      - org.flowable.spring.boot.ProcessEngineServicesAutoConfiguration
-      - org.flowable.spring.boot.app.AppEngineAutoConfiguration
-      - org.flowable.spring.boot.app.AppEngineServicesAutoConfiguration
-      - org.flowable.spring.boot.dmn.DmnEngineAutoConfiguration
-      - org.flowable.spring.boot.dmn.DmnEngineServicesAutoConfiguration
-      - org.flowable.spring.boot.idm.IdmEngineAutoConfiguration
-      - org.flowable.spring.boot.idm.IdmEngineServicesAutoConfiguration
-      - org.flowable.spring.boot.eventregistry.EventRegistryAutoConfiguration
-      - org.flowable.spring.boot.eventregistry.EventRegistryServicesAutoConfiguration
-      - org.flowable.spring.boot.cmmn.CmmnEngineAutoConfiguration
-      - org.flowable.spring.boot.cmmn.CmmnEngineServicesAutoConfiguration
-      - org.flowable.spring.boot.RestApiAutoConfiguration
-      - org.flowable.spring.boot.FlowableSecurityAutoConfiguration
 
 mybatis-plus:
   mapper-locations: classpath*:mapper/**/*.xml
@@ -70,9 +52,12 @@ finance:
     max-fail: ${AUTH_MAX_FAIL:5}
     lock-minutes: ${AUTH_LOCK_MINUTES:15}
 
+# Gate 7（W1 审批流）：启用 Flowable 引擎，运行时表（ACT_*）由引擎自管理
+# （database-schema-update=true，仅影响 Flowable 自身表；业务表仍走 Flyway，见 rule-registry R12 例外登记）
 flowable:
-  database-schema-update: false
+  database-schema-update: true
   async-executor-activate: false
+  process-definition-location-prefix: classpath:/processes/
 
 # MinIO 附件存储（部署 Gate 接入）
 minio:

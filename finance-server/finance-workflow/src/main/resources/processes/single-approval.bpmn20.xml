@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:flowable="http://flowable.org/bpmn"
+             xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL
+                                 http://www.omg.org/spec/BPMN/20100524/MODEL"
+             targetNamespace="http://finance.com/workflow">
+
+    <!--
+      单人顺序审批流程（W1 一期，docs 7.1）：
+      start → 审批（assignee=${approver}）→ 网关（approved=true → 通过 / 否则 → 驳回）
+      通过/驳回均结束流程，由 WorkflowService 回调更新 wf_process_instance 状态。
+    -->
+    <process id="singleApproval" name="单人顺序审批" isExecutable="true">
+
+        <startEvent id="start"/>
+
+        <userTask id="approveTask" name="审批" flowable:assignee="${approver}"/>
+
+        <exclusiveGateway id="gateway"/>
+
+        <endEvent id="endApproved"/>
+        <endEvent id="endRejected"/>
+
+        <sequenceFlow id="f1" sourceRef="start" targetRef="approveTask"/>
+        <sequenceFlow id="f2" sourceRef="approveTask" targetRef="gateway"/>
+        <sequenceFlow id="f3" sourceRef="gateway" targetRef="endApproved">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approved == true}]]></conditionExpression>
+        </sequenceFlow>
+        <sequenceFlow id="f4" sourceRef="gateway" targetRef="endRejected"/>
+    </process>
+</definitions>
