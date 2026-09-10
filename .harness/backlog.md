@@ -19,8 +19,8 @@
 |---|--------|--------------|--------|------|
 | F1 | 科目管理（树形/末级记账/删除保护/期初导入） | GET /subject/tree、POST /subject、PUT/DELETE /subject/{id}、POST /subject/import | finance:subject:add/edit/del/import | ✅ Gate 6（期初导入待 V3） |
 | F2 | 凭证管理（录入/审核/过账/冲销，凭证号占号） | GET/POST /voucher、PUT /voucher/{id}/audit、/book、/reverse、DELETE（草稿） | finance:voucher:add/edit；audit；book/reverse | ✅ Gate 6 |
-| F3 | 账簿查询（总账/明细账/日记账 + Excel） | GET /book/{type}?period=&subjectId= | finance:book:list | ⬜ |
-| F4 | 期末结账（校验未过账/试算平衡/损益结转/反结账） | PUT /period/close、PUT /period/reopen、GET /period/list | finance:period:close/reopen | ⬜ |
+| F3 | 账簿查询（总账/明细账/日记账 + Excel） | GET /book/{type}?period=&subjectId= | finance:book:list | ✅ Gate 7 |
+| F4 | 期末结账（校验未过账/试算平衡/损益结转/反结账） | PUT /period/close、PUT /period/reopen、GET /period/list | finance:period:close/reopen | ✅ Gate 7 |
 | F5 | 财务报表（资产负债表/利润表/现金流量表） | GET /report/balance-sheet、/income、/cash-flow | finance:report:list | ⬜ |
 | F6 | 费用报销（提交→审批→财务审核→打款→凭证） | GET/POST /expense、PUT /expense/{id}/submit、/approve、/reject、/pay | 发起(员工)/审批(部门负责人)/审核打款(财务) | ⬜ |
 | F7 | 收付款与应收应付（核销/账龄预警） | GET/POST /receivable、/payment、PUT /payment/{id}/confirm、GET /receivable/aging | 登记核销(出纳)/查看确认(财务经理) | ⬜ |
@@ -47,7 +47,7 @@
 
 | # | 功能点 | 接口（路径） | 权限码 | 状态 |
 |---|--------|--------------|--------|------|
-| W1 | 审批流封装（WorkflowService：start/todo/approve/reject；单人顺序审批一期） | 内部 Service + /workflow/* | 按流程节点 | ⬜ |
+| W1 | 审批流封装（WorkflowService：start/todo/approve/reject；单人顺序审批一期） | 内部 Service + /workflow/* | 按流程节点 | ✅ Gate 7 |
 | W2 | 消息通知/待办聚合 | GET /todo/list、GET /message/list、PUT /message/{id}/read | 登录用户本人 | ⬜ |
 | W3 | 附件上传（MinIO + 类型/大小校验） | POST /common/upload | 登录用户 | ⬜ |
 | W4 | 定时任务（@Scheduled：到期提醒 08:00、逾期扫描 08:30） | 内部 | 系统 | ⬜ |

@@ -33,6 +33,10 @@
 | R23 | 密码 BCrypt + JWT 无状态 2h | BCryptPasswordEncoder + JwtUtils（Gate 6 已实现） | AuthServiceTest.loginSuccess | ✅ 生效 |
 | R24 | Controller 权限码 @PreAuthorize（白名单除外） | SecurityConfig + @EnableMethodSecurity（Gate 6 已实现） | 接口鉴权（未授权 403） | ✅ 生效 |
 | R25 | 科目删除保护（子科目/发生额禁止删） | SubjectService（Gate 6 已实现） | SubjectServiceTest.deleteWithChildren / deleteWithVoucherEntries | ✅ 生效 |
+| R26 | 流程实例幂等：同一业务单（business_type+business_id）唯一 | DB 唯一约束 `uq_wf_business`（V1）+ 服务前置校验（Gate 7 W1 已实现） | 重复发起被拒 + WorkflowServiceTest.start_duplicate_rejected | ✅ 生效 |
+| R27 | 账簿只读已过账凭证、按公司隔离 | BookQueryMapper 聚合 SQL（Gate 7 F3，仅 BOOKED/REVERSED + company_code 过滤） | BookServiceTest 7 例（总账/明细/日记/Excel/过滤） | ✅ 生效 |
+| R28 | 结账门禁：无未过账凭证 + 试算平衡（借余==贷余）+ 损益结转幂等（source=PERIOD_CLOSE）+ 结账期间只读 | PeriodService（Gate 7 F4 已实现） | PeriodServiceTest 10 例（校验/结转/幂等/反结账） | ✅ 生效 |
+| R29 | **例外登记**：Flowable ACT_* schema 由引擎自管理（`flowable.database-schema-update=true`），不纳入 Flyway 管理；业务表（fin_/wf_/sys_/ctr_/hr_）仍全走 Flyway V* 迁移 | application.yml / application-test.yml（Gate 7 已统一启用） | CI 上下文测试断言 Flyway 版本 v5 + 启动无 act_ge_property 报错 | ✅ 生效（显式例外） |
 
 ## 规则注册流程
 

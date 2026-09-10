@@ -32,6 +32,12 @@
 | L22 | PowerShell `Set-Content -Encoding UTF8` 写 Java 源文件带 BOM → javac 报 `非法字符: '\ufeff'` | PS 5.1 的 utf8 = UTF-8 with BOM | Java 源文件一律用 Write 工具（无 BOM）写入；不要用 PS 改源码 | ✅ 已固化（流程） |
 | L23 | 冒烟发现：种子菜单仅含 list 权限码，按钮级权限（add/edit/audit/book/reverse）缺失 → 登录后调用写接口 403 | @PreAuthorize 权限码未在 sys_menu 种子数据落地 | V3__permissions.sql 补全 BUTTON 权限点并授权 admin；新增权限点必须同步种子菜单 | ✅ 已固化（V3 迁移） |
 | L24 | dev 环境启动失败：Flowable 引擎初始化查 act_ge_property 表不存在（database-schema-update=false 且库无 ACT 表） | Flowable 自管理 schema，与 Flyway 业务迁移冲突（L10 重审点实际爆发） | 主配置统一排除 Flowable 16 类；Gate 7 引入 W1 时改用独立 schema 方案 | ✅ 已固化（application.yml） |
+| L25 | WorkflowServiceTest 幂等误伤：测试库已有 CONTRACT 10001-10004 流程记录，start 报"已发起流程" | Flowable ACT_* 表独立事务、Spring 测试回滚不覆盖；wf_process_instance 也因前次运行残留 | @BeforeEach 物理清理：`DELETE FROM wf_process_instance` + ACT 运行表；CI 全新库天然干净 | ✅ 已固化（测试） |
+| L26 | 幂等兜底误伤：@BeforeEach 用 MP `delete(null)` 逻辑删后，start 仍报"唯一约束兜底" | `uq_wf_business(business_type, business_id)` 不含 deleted 列，逻辑删除不释放唯一索引 | 测试清理必须**物理删除** wf_process_instance，不能逻辑删 | ✅ 已固化（测试） |
+| L27 | PG 报"无法推断参数 $6 的数据类型"（BookQueryMapper @Select） | `#{subjectId}` 传 null 且无上下文类型推断 | 参数显式 `#{subjectId, jdbcType=BIGINT}`（三个查询全改） | ✅ 已固化（代码） |
+| L28 | 结账"试算不平衡 260000"：种子凭证借 1002 10万/贷 4001 10万 | 算法写成"归一净额合计==0"；正确应为**借方余额合计 == 贷方余额合计**（净额正=借余、负=贷余，与科目方向无关） | assertTrialBalance 按借/贷余分列合计比较 | ✅ 已固化（PeriodService） |
+| L29 | 账簿断言 expected 100000 but was 0（4001 实收资本期末贷余为 0） | calculateEnding 把正向余额统一放 endingDebit，CREDIT 方向科目余额应落 endingCredit | assignByDirection：正向余额按科目方向落列，反向余额落另一列取绝对值 | ✅ 已固化（BookService） |
+| L30 | @BeforeEach 清 ACT 表报外键违规 act_fk_idl_procinst | act_ru_identitylink/variable/task 引用 act_ru_execution | 删除顺序：identitylink → variable → task → execution（子表先删） | ✅ 已固化（测试） |
 
 ## 待固化（Gate 6 需清零）
 
