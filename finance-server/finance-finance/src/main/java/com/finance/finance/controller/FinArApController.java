@@ -10,6 +10,7 @@ import com.finance.framework.security.SecurityUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import java.time.LocalDate;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -46,6 +47,22 @@ public class FinArApController {
                                             @RequestParam(required = false) String keyword,
                                             @RequestParam(defaultValue = "1") long page,
                                             @RequestParam(defaultValue = "10") long size) {
-        return Result.ok(arApService.pageAp(SecurityUtils.getCompanyCode(), status, keyword, page, size));
+                return Result.ok(arApService.pageAp(SecurityUtils.getCompanyCode(), status, keyword, page, size));
+    }
+
+    /** 应收账龄（F7，docs 4.7）：按到期日分档，未结清单余额。 */
+    @GetMapping("/ar/aging")
+    @PreAuthorize("hasAuthority('finance:receivable:list')")
+    public Result<AgingVO> arAging(@RequestParam(required = false) String asOf) {
+        LocalDate date = asOf == null || asOf.isBlank() ? LocalDate.now() : LocalDate.parse(asOf);
+        return Result.ok(arApService.aging(SecurityUtils.getCompanyCode(), "AR", date));
+    }
+
+    /** 应付账龄（F7）：按到期日分档，未结清单余额。 */
+    @GetMapping("/ap/aging")
+    @PreAuthorize("hasAuthority('finance:receivable:list')")
+    public Result<AgingVO> apAging(@RequestParam(required = false) String asOf) {
+        LocalDate date = asOf == null || asOf.isBlank() ? LocalDate.now() : LocalDate.parse(asOf);
+        return Result.ok(arApService.aging(SecurityUtils.getCompanyCode(), "AP", date));
     }
 }
