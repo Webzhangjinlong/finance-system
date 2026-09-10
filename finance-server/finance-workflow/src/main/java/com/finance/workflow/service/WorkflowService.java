@@ -26,7 +26,8 @@ import java.util.Map;
  *
  * <p>一期单人顺序审批（BPMN：singleApproval），审批人由发起时指定；
  * 通过/驳回由 WorkflowService 回调更新 wf_process_instance 状态；
- * business_type + business_id 唯一（uq_wf_business）保证一单一流程幂等。</p>
+ * business_type + business_id 唯一（uq_wf_business）保证一单一流程幂等。
+ * approve/reject 返回业务流程记录，供业务模块（如 C2 合同）联动状态与后续动作。</p>
  */
 @Service
 public class WorkflowService {
@@ -118,16 +119,16 @@ public class WorkflowService {
         }).toList();
     }
 
-    /** 审批通过：完成当前任务（approved=true），流程结束，业务记录 APPROVED。 */
+    /** 审批通过：完成当前任务（approved=true），流程结束，业务记录 APPROVED；返回业务流程记录。 */
     @Transactional
-    public void approve(String taskId, String comment) {
-        complete(taskId, true, comment);
+    public WfProcessInstance approve(String taskId, String comment) {
+        return complete(taskId, true, comment);
     }
 
-    /** 审批驳回：完成当前任务（approved=false），流程结束，业务记录 REJECTED。 */
+    /** 审批驳回：完成当前任务（approved=false），流程结束，业务记录 REJECTED；返回业务流程记录。 */
     @Transactional
-    public void reject(String taskId, String comment) {
-        complete(taskId, false, comment);
+    public WfProcessInstance reject(String taskId, String comment) {
+        return complete(taskId, false, comment);
     }
 
     /** 审批历史：某业务单据的流程记录。 */
@@ -140,7 +141,7 @@ public class WorkflowService {
 
     // ==================== 内部实现 ====================
 
-    private void complete(String taskId, boolean approved, String comment) {
+    private WfProcessInstance complete(String taskId, boolean approved, String comment) {
         Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
         if (task == null) {
             throw new BusinessException("审批任务不存在或已完成");
@@ -166,5 +167,6 @@ public class WorkflowService {
             log.info("审批{}：type={} bizId={} taskId={}",
                     approved ? "通过" : "驳回", record.getBusinessType(), record.getBusinessId(), taskId);
         }
+        return record;
     }
 }

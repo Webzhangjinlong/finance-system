@@ -38,6 +38,9 @@
 | L28 | 结账"试算不平衡 260000"：种子凭证借 1002 10万/贷 4001 10万 | 算法写成"归一净额合计==0"；正确应为**借方余额合计 == 贷方余额合计**（净额正=借余、负=贷余，与科目方向无关） | assertTrialBalance 按借/贷余分列合计比较 | ✅ 已固化（PeriodService） |
 | L29 | 账簿断言 expected 100000 but was 0（4001 实收资本期末贷余为 0） | calculateEnding 把正向余额统一放 endingDebit，CREDIT 方向科目余额应落 endingCredit | assignByDirection：正向余额按科目方向落列，反向余额落另一列取绝对值 | ✅ 已固化（BookService） |
 | L30 | @BeforeEach 清 ACT 表报外键违规 act_fk_idl_procinst | act_ru_identitylink/variable/task 引用 act_ru_execution | 删除顺序：identitylink → variable → task → execution（子表先删） | ✅ 已固化（测试） |
+| L31 | V6 迁移报"重复键违反 sys_menu_pkey(1300)"：V2 种子已建合同菜单 | 新迁移重复建已存在的菜单/ID，未先核对 V2 种子 | 新迁移前先查 V2 已建菜单 ID/权限码；已存在的只 UPDATE/补按钮 | ✅ 已固化（流程） |
+| L32 | 逻辑删除后重建同编号合同报"唯一约束冲突"，重试无效 | 编号查询（MP selectList）自动过滤 deleted=0，看不到逻辑删记录，误复用编号撞 uq_ctr_contract_no（唯一约束含逻辑删行） | 编号分配用原生 SQL 查 max（**不**加 deleted 过滤）：CtrContractMapper.selectLatestContractNo | ✅ 已固化（代码） |
+| L33 | 审批驳回后 process_instance_id 未清空（断言 null 失败） | MP `updateById` 默认忽略 null 字段，`setProcessInstanceId(null)` 不生效 | 显式置 NULL 用 `LambdaUpdateWrapper.set(col, null)` | ✅ 已固化（代码） |
 
 ## 待固化（Gate 6 需清零）
 
