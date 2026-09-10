@@ -1,7 +1,8 @@
 # Merge a PR into a protected branch (solo development mode).
 #
-# Background: main branch protection requires 1 approving review, but GitHub
-# forbids authors from approving their own PR. Solo strategy:
+# Background: main branch protection requires 1 approving review + required
+# status checks (backend-ci, frontend-ci), but GitHub forbids authors from
+# approving their own PR. Solo strategy:
 #   temporarily disable enforce_admins -> owner merges -> restore & verify.
 #
 # Usage:
@@ -12,7 +13,10 @@
 # Safety guarantees:
 #   1) Protection state is re-checked after merge and enforce_admins=true is
 #      forced back and verified;
-#   2) Any failure enters the fallback restore path; an open protection window
+#   2) required_status_checks (backend-ci, frontend-ci) is ALWAYS part of the
+#      PUT body, because PUT /branches/main/protection is a FULL replace -
+#      omitting it silently removes the CI gate (L35 regression, fixed Gate 10);
+#   3) Any failure enters the fallback restore path; an open protection window
 #      must never be left behind.
 
 param(
@@ -35,8 +39,13 @@ $headers = @{
 }
 
 # Base protection rule body, kept in sync with the repository's real rules.
+# NOTE: PUT /branches/main/protection is a FULL replace; required_status_checks
+# must always be present here or CI gates are silently lost on every merge.
 $base = @{
-    required_status_checks        = $null
+    required_status_checks        = @{
+        contexts = @('backend-ci', 'frontend-ci')
+        strict   = $false
+    }
     required_pull_request_reviews = @{
         required_approving_review_count = 1
         dismiss_stale_reviews           = $true
