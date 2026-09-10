@@ -22,5 +22,10 @@
             <groupId>com.finance</groupId>
             <artifactId>finance-workflow</artifactId>
         </dependency>
+        <!-- Gate 9 C3：计划联动应收/应付（走 ArApService，R16 不直调他人 Mapper） -->
+        <dependency>
+            <groupId>com.finance</groupId>
+            <artifactId>finance-finance</artifactId>
+        </dependency>
     </dependencies>
 </project>

@@ -32,7 +32,7 @@
 |---|--------|--------------|--------|------|
 | C1 | 合同台账（编号/类型/金额/状态流转/删除保护） | GET/POST /contract、PUT /contract/{id}、POST /contract/{id}/submit、/void | 维护(合同管理员/业务) | ✅ Gate 8 |
 | C2 | 合同审批（Flowable 按金额分级，一期单人） | POST /contract/{id}/submit；GET /workflow/todo、PUT /contract/task/{id}/approve\|reject | 按流程节点角色 | ✅ Gate 8 |
-| C3 | 收付款计划（生效自动生成/到期生成应收应付/进度视图） | GET/POST /contract/{id}/payment-plans | finance:receivable:list / contract:plan:edit | ⬜ |
+| C3 | 收付款计划（生效自动生成/到期生成应收应付/进度视图） | GET/POST /contract/{id}/payment-plans | finance:receivable:list / contract:plan:edit | ✅（Gate 9） |
 | C4 | 到期提醒（定时：合同 30 天/计划 7 天/应收逾期） | GET /todo/list、GET /message/list、PUT /message/{id}/read | 登录用户本人 | ⬜ |
 
 ## 人事管理（com.finance.hr）
