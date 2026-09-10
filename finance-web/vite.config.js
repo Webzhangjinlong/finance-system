@@ -3,7 +3,7 @@ import vue from '@vitejs/plugin-vue'
 import { fileURLToPath, URL } from 'node:url'
 
 // 财务管理系统前端构建配置
-// 约束：Vite 5 + Vue 3；路径别名 @ -> src；开发代理 /api -> 后端 8080
+// 约束：Vite 5 + Vue 3；路径别名 @ -> src；开发代理 /api -> 后端 8080（剥掉 /api 前缀）
 export default defineConfig({
   plugins: [vue()],
   resolve: {
@@ -16,7 +16,9 @@ export default defineConfig({
     proxy: {
       '/api': {
         target: 'http://localhost:8080',
-        changeOrigin: true
+        changeOrigin: true,
+        // 后端接口无 /api 前缀，dev 代理剥掉后转发
+        rewrite: (path) => path.replace(/^\/api/, '')
       }
     }
   },
