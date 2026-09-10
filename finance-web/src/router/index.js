@@ -1,13 +1,50 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
-// 路由表：P0 模块逐步补充（dashboard 为占位首页）
+// 路由表：Gate 11 前端核心页面（对接 Gate 6-10 后端接口）
 const routes = [
-  { path: '/', redirect: '/dashboard' },
+  { path: '/login', name: 'Login', component: () => import('@/views/Login.vue'), meta: { title: '登录' } },
   {
-    path: '/dashboard',
-    name: 'Dashboard',
-    component: () => import('@/views/dashboard/index.vue'),
-    meta: { title: '工作台' }
+    path: '/',
+    component: () => import('@/views/Layout.vue'),
+    redirect: '/dashboard',
+    children: [
+      {
+        path: 'dashboard',
+        name: 'Dashboard',
+        component: () => import('@/views/dashboard/index.vue'),
+        meta: { title: '工作台' }
+      },
+      {
+        path: 'subject',
+        name: 'Subject',
+        component: () => import('@/views/subject/index.vue'),
+        meta: { title: '科目管理' }
+      },
+      {
+        path: 'voucher',
+        name: 'Voucher',
+        component: () => import('@/views/voucher/index.vue'),
+        meta: { title: '凭证管理' }
+      },
+      {
+        path: 'contract',
+        name: 'Contract',
+        component: () => import('@/views/contract/index.vue'),
+        meta: { title: '合同台账' }
+      },
+      {
+        path: 'approval',
+        name: 'Approval',
+        component: () => import('@/views/approval/index.vue'),
+        meta: { title: '审批待办' }
+      },
+      {
+        path: 'message',
+        name: 'Message',
+        component: () => import('@/views/message/index.vue'),
+        meta: { title: '消息中心' }
+      }
+    ]
   }
 ]
 
@@ -16,10 +53,17 @@ const router = createRouter({
   routes
 })
 
-// 全局前置守卫：登录态校验骨架（接入认证后启用）
+// 全局前置守卫：未登录跳转登录页；已登录访问 /login 回工作台
 router.beforeEach((to, _from, next) => {
   document.title = to.meta.title ? `${to.meta.title} · 财务管理系统` : '财务管理系统'
-  next()
+  const token = localStorage.getItem('token')
+  if (to.path !== '/login' && !token) {
+    next('/login')
+  } else if (to.path === '/login' && token) {
+    next('/dashboard')
+  } else {
+    next()
+  }
 })
 
 export default router
