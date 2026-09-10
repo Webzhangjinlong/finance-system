@@ -52,3 +52,5 @@
 
 | R36 | 站内消息幂等：同 公司+接收人+类型+业务单+日期 只提醒一次 | V8 uq_sys_message_remind 唯一约束 + MessageService.send 捕获 DuplicateKey 吞并（Gate 10 W2/W4） | ReminderTaskTest.dueReminder_contractWithin30Days_sendsMessageIdempotent / overdueScan_marksPlanOverdueAndSendsMessage（二次执行不重复） | ✅ 生效 |
 | R37 | 计划状态机 OVERDUE 归属：仅 W4 逾期扫描置 OVERDUE（未收付完），核销路径只置 PAID/PARTIAL，禁止手工置逾期 | ContractPlanService.markOverdue 幂等（PAID 跳过）+ registerReceipt/registerPayment 状态回写（Gate 9 约定，Gate 10 落地） | ReminderTaskTest.overdueScan_marksPlanOverdueAndSendsMessage / overdueScan_paidPlanUntouched | ✅ 生效 |
+| R38 | 报表取数口径：仅已过账凭证(BOOKED)按科目汇总；资产负债表 资产==负债+权益（含本期净利润）平衡校验 | ReportQueryMapper.selectReportRows（BOOKED+company_code+期间可空）+ ReportService.balanceSheet 平衡断言（Gate 12 F5） | ReportServiceTest.balanceSheet_assetEqualsEquityAndProfit / liabilityIncluded / incomeStatement_revenueMinusExpense / cashFlow_simplifiedByCashSubjects / periodFilterExcludesOtherPeriod | ✅ 生效 |
+| R39 | 账龄分档：未到期/0-30/31-60/61-90/90+（按到期日距基准日天数），排除已结清(SETTLED)，余额=金额-已收付 | ArApService.aging（type AR/AP + asOf 可传参，Gate 12 F7） | AgingTest.arAging_bucketsByDueDate / apAging_partialAndBoundary | ✅ 生效 |
