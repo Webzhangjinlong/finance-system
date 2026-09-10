@@ -51,8 +51,9 @@
 
 1. 每次改动从 `main` 拉新分支：`feat/<模块>-<简述>` 或 `fix/<简述>`；**禁止直推 main**。
 2. 提交用 Conventional Commits（`feat:` / `fix:` / `chore:` / `docs:` / `refactor:`）。
-3. 完成标准：本地验证通过（见命令清单）→ 提交 → `git push` → 创建 PR → 用 `tools/merge-pr.ps1` 合入（自动处理分支保护）。
-4. 涉及新增业务规则时，同步更新 `.harness/rule-registry.md`。
+3. 完成标准：按 `.harness/checklist.md` 自查 → 本地验证通过（`tools/verify-local.ps1`）→ 提交 → `git push` → `tools/create-pr.ps1` 创建 PR → CI 全绿 → 用 `tools/merge-pr.ps1` 合入（自动处理分支保护）。
+4. 涉及新增业务规则时，同步更新 `.harness/rule-registry.md`；新失败复盘到 `.harness/failure-review.md` 并登记 `.harness/lessons.md`。
+5. 功能开发按 `.harness/backlog.md` 顺序执行；表名以 V1 实际实现为准（差异见 `.harness/db-tables-audit.md`）。
 
 ## 命令清单（已实测可执行）
 
@@ -64,6 +65,11 @@ npm run build      # 构建验证
 # 后端（工作目录 finance-server/）
 mvn -pl finance-admin -am package -DskipTests   # 编译打包（跳过测试）
 mvn verify                                       # 全量验证（含测试，Gate 4 后为 CI 同款）
+
+# 工具脚本（仓库根目录，Gate 5 固化）
+.\tools\verify-local.ps1            # 本地全量验证（后端 verify + 前端 ci/build），ALL GREEN 才算过
+.\tools\db-migrate.ps1 -Action migrate|repair|validate|info   # Flyway 封装（自动 install 内部模块）
+.\tools\create-pr.ps1 -Title "..." -Body "..."   # 创建 PR（需 $env:GH_TOKEN）
 
 # 合入受保护分支（仓库根目录）
 $env:GH_TOKEN = '<PAT>'; .\tools\merge-pr.ps1 -PrNumber <N>
@@ -81,4 +87,9 @@ $env:GH_TOKEN = '<PAT>'; .\tools\merge-pr.ps1 -PrNumber <N>
 - `docs/财务管理系统开发方案.html` — 架构决策、模块划分、DB 表清单、排期
 - `docs/财务管理系统功能开发文档.html` — 各功能点开发级规格（规则/接口/权限/异常）
 - `docs/开发约束与流程规范.html` — Harness 流程、CI 门禁、收敛机制
-- `.harness/` — 教训库、规则注册表、失败复盘（随开发持续维护）
+- `.harness/rule-registry.md` — 机器强制规则注册表（DB/CI/ArchUnit 载体与状态）
+- `.harness/lessons.md` — 教训库（错误→根因→固化载体→状态）
+- `.harness/failure-review.md` — 失败复盘记录与模板（收敛反馈）
+- `.harness/checklist.md` — 每次 PR 前的完成自查清单
+- `.harness/backlog.md` — 功能开发 Backlog（模块/功能点/接口/权限码）
+- `.harness/db-tables-audit.md` — 文档表名 vs V1 实现差异审计 + V3+ 迁移计划
