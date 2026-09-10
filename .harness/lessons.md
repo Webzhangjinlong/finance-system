@@ -46,3 +46,4 @@
 
 - 当前无待固化项；Gate 6 起每完成一个功能点，对照 checklist 自查并补录新教训。
 | L34 | C3 测试 4 例失败：sync 二次计数=1（存在也计数）、部分核销期望 PARTIAL 实为 OVERDUE、pageAp open=0（c2 未生成 AP）、OVERDUE 语义与核销职责混淆 | 计数口径=新生成而非调用成功；OVERDUE 是到期提醒职责（Gate 10 定时任务），核销路径只置 PAID/PARTIAL；测试数据未搭全（需 sync 生成 OPEN 单）| ArApService 加 existsArByPlan/existsApByPlan 前置判定；updatePlanAfterSettle 移除 OVERDUE 分支；测试补 syncDuePlans；OVERDUE 归属 5.4 到期提醒 | ✅ 已固化（代码+测试） |
+| L35 | 合入后分支保护状态检查（backend-ci/frontend-ci）丢失：merge-pr.ps1 用 PUT 全量覆盖 /branches/main/protection，$base 中 required_status_checks 为 $null，首次合入即覆盖掉 CI 门禁（CI 红也能合入，违反"机器强制"核心诉求） | PUT 是全量替换而非合并；脚本只关心 enforce_admins 的临时开关，未考虑其他保护字段 | 修复：$base 常驻 status_checks contexts；合入脚本 [3/3] 恢复后增加 status_checks 实证（enforce_admins + reviews + checks 三查）；lessons 记录本条目 | ✅ 已固化（merge-pr.ps1 + 实证） |
