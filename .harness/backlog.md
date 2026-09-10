@@ -39,9 +39,9 @@
 
 | # | 功能点 | 接口（路径） | 权限码 | 状态 |
 |---|--------|--------------|--------|------|
-| H1 | 部门/员工档案（工号唯一/离职停用/数据权限） | GET/POST /hr/department、/hr/employee、PUT /hr/employee/{id}/status | hr:employee:add/edit（HR） | ⬜ |
-| H2 | 考勤（月度/批量导入/供工资取数） | GET/POST /hr/attendance、POST /hr/attendance/import | hr:attendance:edit（HR） | ⬜ |
-| H3 | 工资核算与工资条（累计预扣个税/流程/工资条本人可见） | POST /salary/calculate、GET /salary/list、POST /salary/{id}/submit、/approve、/pay；GET /salary/{id}/slip | 核算(HR)/复核(财务)/slip(本人) | ⬜ |
+| H1 ✅ | 部门/员工档案（工号唯一/离职停用/数据权限） | GET/POST /hr/department、/hr/employee、PUT /hr/employee/{id}/status | hr:employee:add/edit（HR） | ⬜ |
+| H2 ✅ | 考勤（月度/批量导入/供工资取数） | GET/POST /hr/attendance、POST /hr/attendance/import | hr:attendance:edit（HR） | ⬜ |
+| H3 ✅ | 工资核算与工资条（累计预扣个税/流程/工资条本人可见） | POST /salary/calculate、GET /salary/list、POST /salary/{id}/submit、/approve、/pay；GET /salary/{id}/slip | 核算(HR)/复核(财务)/slip(本人) | ⬜ |
 
 ## 公共支撑（com.finance.workflow + framework）
 
