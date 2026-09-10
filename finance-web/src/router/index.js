@@ -76,6 +76,21 @@ const routes = [
         path: 'system/menu',
         component: () => import('@/views/system/menu/index.vue'),
         meta: { title: '菜单管理' }
+      },
+      {
+        path: 'hr/employee',
+        component: () => import('@/views/hr/employee/index.vue'),
+        meta: { title: '员工档案' }
+      },
+      {
+        path: 'hr/attendance',
+        component: () => import('@/views/hr/attendance/index.vue'),
+        meta: { title: '考勤管理' }
+      },
+      {
+        path: 'hr/salary',
+        component: () => import('@/views/hr/salary/index.vue'),
+        meta: { title: '工资核算' }
       }
     ]
   }

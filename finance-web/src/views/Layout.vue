@@ -17,6 +17,11 @@
   <el-menu-item index="/system/user"><el-icon><User /></el-icon>用户管理</el-menu-item>
   <el-menu-item index="/system/role"><el-icon><Avatar /></el-icon>角色管理</el-menu-item>
   <el-menu-item index="/system/menu"><el-icon><Menu /></el-icon>菜单管理</el-menu-item>
+<el-sub-menu index="/hr"><template #title><el-icon><OfficeBuilding /></el-icon><span>人事管理</span></template>
+<el-menu-item index="/hr/employee"><el-icon><User /></el-icon>员工档案</el-menu-item>
+<el-menu-item index="/hr/attendance"><el-icon><Calendar /></el-icon>考勤管理</el-menu-item>
+<el-menu-item index="/hr/salary"><el-icon><Money /></el-icon>工资核算</el-menu-item>
+</el-sub-menu>
 </el-sub-menu>
       </el-menu>
     </el-aside>
@@ -48,7 +53,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { HomeFilled, List, Document, Files, Checked, Bell, TrendCharts, Timer, Tickets, Setting, User, Avatar, Menu } from '@element-plus/icons-vue'
+import { HomeFilled, List, Document, Files, Checked, Bell, TrendCharts, Timer, Tickets, Setting, User, Avatar, Menu, OfficeBuilding, Calendar, Money } from '@element-plus/icons-vue'
 import { unreadCount } from '@/api'
 import { useUserStore } from '@/stores/user'
 
