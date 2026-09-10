@@ -43,6 +43,15 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html
 
+# 认证配置（密钥生产环境必须用环境变量覆盖，禁止提交真实密钥）
+finance:
+  jwt:
+    secret: ${JWT_SECRET:finance-system-jwt-secret-key-please-change-0123456789}
+    expire-seconds: ${JWT_EXPIRE_SECONDS:7200}
+  auth:
+    max-fail: ${AUTH_MAX_FAIL:5}
+    lock-minutes: ${AUTH_LOCK_MINUTES:15}
+
 flowable:
   database-schema-update: false
   async-executor-activate: false

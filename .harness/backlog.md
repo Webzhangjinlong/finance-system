@@ -8,7 +8,7 @@
 
 | # | 功能点 | 接口（路径） | 权限码 | 状态 |
 |---|--------|--------------|--------|------|
-| S1 | 登录认证（BCrypt + JWT 2h + 5 次锁定 15min） | POST /auth/login、POST /auth/logout、GET /auth/profile | 公开 | ⬜ |
+| S1 | 登录认证（BCrypt + JWT 2h + 5 次锁定 15min） | POST /auth/login、POST /auth/logout、GET /auth/profile | 公开 | ✅ Gate 6 |
 | S2 | 用户/角色/菜单 CRUD + 分配 + 重置密码 | GET/POST/PUT/DELETE /system/user、/role、/menu | system:user:list/add/edit/del 等 | ⬜ |
 | S3 | 字典管理（两级 + Redis 缓存失效） | GET/POST /system/dict | system:dict:* | ⬜ |
 | S4 | 操作日志（只增不删，审计写操作） | GET /system/log | system:log:list | ⬜ |
@@ -17,8 +17,8 @@
 
 | # | 功能点 | 接口（路径） | 权限码 | 状态 |
 |---|--------|--------------|--------|------|
-| F1 | 科目管理（树形/末级记账/删除保护/期初导入） | GET /subject/tree、POST /subject、PUT/DELETE /subject/{id}、POST /subject/import | finance:subject:add/edit/del/import | ⬜ |
-| F2 | 凭证管理（录入/审核/过账/冲销，凭证号占号） | GET/POST /voucher、PUT /voucher/{id}/audit、/book、/reverse、DELETE（草稿） | finance:voucher:add/edit；audit；book/reverse | ⬜ |
+| F1 | 科目管理（树形/末级记账/删除保护/期初导入） | GET /subject/tree、POST /subject、PUT/DELETE /subject/{id}、POST /subject/import | finance:subject:add/edit/del/import | ✅ Gate 6（期初导入待 V3） |
+| F2 | 凭证管理（录入/审核/过账/冲销，凭证号占号） | GET/POST /voucher、PUT /voucher/{id}/audit、/book、/reverse、DELETE（草稿） | finance:voucher:add/edit；audit；book/reverse | ✅ Gate 6 |
 | F3 | 账簿查询（总账/明细账/日记账 + Excel） | GET /book/{type}?period=&subjectId= | finance:book:list | ⬜ |
 | F4 | 期末结账（校验未过账/试算平衡/损益结转/反结账） | PUT /period/close、PUT /period/reopen、GET /period/list | finance:period:close/reopen | ⬜ |
 | F5 | 财务报表（资产负债表/利润表/现金流量表） | GET /report/balance-sheet、/income、/cash-flow | finance:report:list | ⬜ |

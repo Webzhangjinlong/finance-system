@@ -28,6 +28,8 @@
 | L18 | 迁移脚本引用不存在的列（idx 含 period_year 但分录表无此列） | 复制索引定义时未核对目标表列 | 迁移脚本必须本地先跑通再合入；CI 上下文测试兜底（Flyway 落库） | ✅ 已固化（CI 门禁） |
 | L19 | 测试库被 Flowable 表污染后残留 baseline 记录 | 污染库无法自愈 | 删库重建（开发期）；CI 每次全新 services 无此问题 | ✅ 已固化（流程） |
 | L20 | `$ErrorActionPreference='Stop'` 下 PowerShell 把原生命令 stderr 警告（JVM/npm chunk 警告）误判为失败 | PS 5.1 Stop 策略把 native stderr 当错误 | 工具脚本不设 Stop，显式检查 `$LASTEXITCODE`（verify-local.ps1 注释） | ✅ 已固化（工具） |
+| L21 | ArchUnit 扫描测试类导致分层/命名规则误报（测试类访问 Service 被拒） | @AnalyzeClasses 默认包含 test-classes | `importOptions = ImportOption.DoNotIncludeTests.class`（架构规则只管生产代码） | ✅ 已固化（测试） |
+| L22 | PowerShell `Set-Content -Encoding UTF8` 写 Java 源文件带 BOM → javac 报 `非法字符: '\ufeff'` | PS 5.1 的 utf8 = UTF-8 with BOM | Java 源文件一律用 Write 工具（无 BOM）写入；不要用 PS 改源码 | ✅ 已固化（流程） |
 
 ## 待固化（Gate 6 需清零）
 
