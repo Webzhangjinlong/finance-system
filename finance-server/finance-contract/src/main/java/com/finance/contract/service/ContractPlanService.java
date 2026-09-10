@@ -19,13 +19,14 @@ import java.time.LocalDate;
 import java.util.List;
 
 /**
- * 收付款计划联动服务（C3，docs 5.3）。
+ * 收付款计划联动服务（C3/W4，docs 5.3/5.4）。
  *
  * <p>业务规则：
  * <ul>
  *   <li>计划到期 → 生成应收/应付单（幂等：fin_ar/fin_ap 的 company+plan_id 唯一约束兜底）；</li>
- *   <li>收付款核销 → 回写计划已收/已付金额与状态（UNPAID/PARTIAL/PAID/OVERDUE）+ 应收/应付单核销；</li>
+ *   <li>收付款核销 → 回写计划已收/已付金额与状态（UNPAID/PARTIAL/PAID）；</li>
  *   <li>超额核销双重拦截：ArApService 服务校验 + DB CHECK（ck_fin_ar_received/ck_fin_ap_paid/ck_ctr_plan_paid）；</li>
+ *   <li>逾期扫描（W4 定时任务）→ 未收付完的计划置 OVERDUE（承接 C3 的 OVERDUE 归属）；</li>
  *   <li>跨模块遵守 R16：计划（contract 域）与单据（finance 域）通过 ArApService 交互，不直调他人 Mapper。</li>
  * </ul></p>
  */
@@ -125,6 +126,40 @@ public class ContractPlanService {
                 .eq(CtrPaymentPlan::getCompanyCode, companyCode)
                 .eq(CtrPaymentPlan::getContractId, contractId)
                 .orderByAsc(CtrPaymentPlan::getPlanNo));
+    }
+
+    /** 到期窗口内未清计划（W4 到期提醒：plan_date 在 [from,to] 且未收付完）。 */
+    public List<CtrPaymentPlan> listDuePlans(String companyCode, LocalDate from, LocalDate to) {
+        return planMapper.selectList(new LambdaQueryWrapper<CtrPaymentPlan>()
+                .eq(CtrPaymentPlan::getCompanyCode, companyCode)
+                .in(CtrPaymentPlan::getStatus, CtrPaymentPlan.PLAN_STATUS_UNPAID,
+                        CtrPaymentPlan.PLAN_STATUS_PARTIAL, CtrPaymentPlan.PLAN_STATUS_OVERDUE)
+                .between(CtrPaymentPlan::getPlanDate, from, to));
+    }
+
+    /** 已逾期未清计划（W4 逾期扫描：plan_date &lt; before 且未收付完）。 */
+    public List<CtrPaymentPlan> listOverduePlans(String companyCode, LocalDate before) {
+        return planMapper.selectList(new LambdaQueryWrapper<CtrPaymentPlan>()
+                .eq(CtrPaymentPlan::getCompanyCode, companyCode)
+                .in(CtrPaymentPlan::getStatus, CtrPaymentPlan.PLAN_STATUS_UNPAID,
+                        CtrPaymentPlan.PLAN_STATUS_PARTIAL)
+                .lt(CtrPaymentPlan::getPlanDate, before));
+    }
+
+    /** 标记计划逾期（OVERDUE，仅未收付完时生效，幂等）。 */
+    @Transactional
+    public void markOverdue(String companyCode, Long planId) {
+        CtrPaymentPlan plan = getPlan(companyCode, planId);
+        if (CtrPaymentPlan.PLAN_STATUS_PAID.equals(plan.getStatus())) {
+            return;
+        }
+        if (!CtrPaymentPlan.PLAN_STATUS_OVERDUE.equals(plan.getStatus())) {
+            CtrPaymentPlan update = new CtrPaymentPlan();
+            update.setId(planId);
+            update.setStatus(CtrPaymentPlan.PLAN_STATUS_OVERDUE);
+            planMapper.updateById(update);
+            log.info("计划标记逾期：planId={} planNo={}", planId, plan.getPlanNo());
+        }
     }
 
     // ==================== 内部实现 ====================
