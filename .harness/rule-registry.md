@@ -36,7 +36,11 @@
 | R26 | 流程实例幂等：同一业务单（business_type+business_id）唯一 | DB 唯一约束 `uq_wf_business`（V1）+ 服务前置校验（Gate 7 W1 已实现） | 重复发起被拒 + WorkflowServiceTest.start_duplicate_rejected | ✅ 生效 |
 | R27 | 账簿只读已过账凭证、按公司隔离 | BookQueryMapper 聚合 SQL（Gate 7 F3，仅 BOOKED/REVERSED + company_code 过滤） | BookServiceTest 7 例（总账/明细/日记/Excel/过滤） | ✅ 生效 |
 | R28 | 结账门禁：无未过账凭证 + 试算平衡（借余==贷余）+ 损益结转幂等（source=PERIOD_CLOSE）+ 结账期间只读 | PeriodService（Gate 7 F4 已实现） | PeriodServiceTest 10 例（校验/结转/幂等/反结账） | ✅ 生效 |
-| R29 | **例外登记**：Flowable ACT_* schema 由引擎自管理（`flowable.database-schema-update=true`），不纳入 Flyway 管理；业务表（fin_/wf_/sys_/ctr_/hr_）仍全走 Flyway V* 迁移 | application.yml / application-test.yml（Gate 7 已统一启用） | CI 上下文测试断言 Flyway 版本 v5 + 启动无 act_ge_property 报错 | ✅ 生效（显式例外） |
+| R29 | **例外登记**：Flowable ACT_* schema 由引擎自管理（`flowable.database-schema-update=true`），不纳入 Flyway 管理；业务表（fin_/wf_/sys_/ctr_/hr_）仍全走 Flyway V* 迁移 | application.yml / application-test.yml（Gate 7 已统一启用） | CI 上下文测试断言 Flyway 版本 v6 + 启动无 act_ge_property 报错 | ✅ 生效（显式例外） |
+| R30 | 合同编号（公司+年份+序列）唯一 | DB 唯一约束 `uq_ctr_contract_no` + 服务重试换号（Gate 8 C1）；编号查询**绕过逻辑删除过滤**（唯一约束作用于全表） | 重复编号被拒 + ContractServiceTest.create_generatesContractNoAndDraft / create_invalidType_rejectedByDbCheck | ✅ 生效 |
+| R31 | 合同删除保护：非 DRAFT 禁删，只能作废 | ContractService（Gate 8 C1 已实现） | ContractServiceTest.delete_draftOnly_deleteProtection / voidContract_terminatesApproved | ✅ 生效 |
+| R32 | 合同审批联动：DRAFT→APPROVING→APPROVED(生成计划)/REJECTED(回 DRAFT)，流程幂等 | ContractService + WorkflowService 回调（Gate 8 C2 已实现） | ContractServiceTest.submit_startsApproval / approveTask_activatesContractAndGeneratesPlan / rejectTask_returnsToDraft | ✅ 生效 |
+| R33 | 收付款计划生成幂等：合同生效仅生成一次 | ContractService.generatePaymentPlans（按 contract_id 前置计数 + plan_no 唯一，Gate 8 已实现） | ContractServiceTest.approveTask_planGeneratedOnce | ✅ 生效 |
 
 ## 规则注册流程
 
