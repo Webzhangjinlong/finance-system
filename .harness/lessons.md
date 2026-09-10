@@ -50,3 +50,6 @@
 
 | L36 | 已应用的 Flyway 迁移文件被修改（V8 增列）→ 本地/测试库 checksum 不匹配 → 83 例测试全 Error（上下文加载失败） | 迁移文件一旦被任何库应用，checksum 锁定，不得修改内容 | 未合入的迁移可改，但已应用过的库必须能对上 checksum：已应用则**追加新 V9 迁移**补列，不回改旧文件；新迁移在本地先跑通（mvn test 全绿）再合入 | ✅ 已固化（流程） |
 | L37 | 新集成测试 @BeforeEach `DELETE FROM fin_voucher` 全清 → 删掉 V2 种子凭证(1001/1002) → 依赖种子的 VoucherServiceTest/BookServiceTest/PeriodServiceTest 批量失败；且测试跑完未清理，残留凭证占凭证号导致顺序断言失败 | 共享测试库的种子数据是跨测试类的公共依赖，全量删除即破坏；测试方法间无 @AfterEach 兜底 | 清理 SQL 用 `WHERE id NOT IN (种子id)` 保留共享种子；@BeforeEach + @AfterEach 双清理保证跑完不留数据；破坏后从 V2 脚本原样重建种子 | ✅ 已固化（测试规范） |
+
+| L39 | V10 菜单 id=1206 冲突：1206 已被 V7 应收应付占用（sys_menu_pkey 唯一冲突）→ 首次 mvn test 上下文加载失败 100 例全 Error | 新迁移插入固定 id 前未检查历史迁移已占用；Flyway 失败整体回滚但半状态需手工清理 | 写迁移前先 psql 查对应 id 区间占用；失败后 DROP 半建表 + 清理 flyway_schema_history 再重跑 | ✅ 已固化（流程） |
+| L40 | W1 审批流"驳回后重新提交"被幂等拦截：start 只要存在历史实例即拒绝，且唯一约束兜底双重拦截（驳回重提 → "唯一约束兜底"） | W1 幂等语义过严：已结束（APPROVED/REJECTED）实例应允许重新发起，仅 RUNNING 需拦截 | WorkflowService.start 改为仅 RUNNING 拒绝；已结束实例复用记录行 updateById（驳回可重提，兼容合同/报销，Flowable 历史仍在 act_hi_*）；测试补驳回重提用例 | ✅ 已固化（代码+测试） |
