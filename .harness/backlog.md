@@ -11,7 +11,7 @@
 | S1 | 登录认证（BCrypt + JWT 2h + 5 次锁定 15min） | POST /auth/login、POST /auth/logout、GET /auth/profile | 公开 | ✅ Gate 6 |
 | S2 | 用户/角色/菜单 CRUD + 分配 + 重置密码 | GET/POST/PUT/DELETE /system/user、/role、/menu | system:user:list/add/edit/del 等 | ✅ Gate 14 #20 |
 | S3 | 字典管理（两级 + Redis 缓存失效） | GET/POST /system/dict | system:dict:* | ⬜ |
-| S4 | 操作日志（只增不删，审计写操作） | GET /system/log | system:log:list | ⬜ |
+| S4 | 操作日志（只增不删，审计写操作） | GET /system/oper-log | system:log:list | ✅ Gate 16 |
 
 ## 财务管理（com.finance.finance）——核心
 
