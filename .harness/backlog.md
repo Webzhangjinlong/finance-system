@@ -25,6 +25,7 @@
 | F6 | 费用报销（提交→审批→财务审核→打款→凭证） | GET/POST /expense、PUT /expense/{id}/submit、/approve、/reject、/pay | 发起(员工)/审批(部门负责人)/审核打款(财务) | ✅ Gate 13 #19 |
 | F7 | 收付款与应收应付（核销/账龄预警） | GET/POST /receivable、/payment、PUT /payment/{id}/confirm、GET /receivable/aging | 登记核销(出纳)/查看确认(财务经理) | ✅ Gate 12 #17（账龄 /finance/ar|ap/aging） |
 | F8 | 凭证映射引擎（事件监听→规则→草稿，幂等） | GET/POST /voucher-rule | 规则维护(财务经理)；触发系统内部 | ✅ PR#32 |
+| F9 | 财务分析（科目余额表/试算平衡 + 费用月度趋势） | GET /finance/analysis/trial-balance、/expense-trend | finance:analysis:list | ✅ PR#34 |
 
 ## 合同管理（com.finance.contract）
 
