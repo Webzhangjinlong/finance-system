@@ -76,6 +76,7 @@
           <el-col :span="12"><el-form-item label="入职日期"><el-date-picker v-model="form.hireDate" type="date" value-format="YYYY-MM-DD" style="width: 100%" /></el-form-item></el-col>
           <el-col :span="12"><el-form-item label="合同到期"><el-date-picker v-model="form.contractExpireDate" type="date" value-format="YYYY-MM-DD" style="width: 100%" /></el-form-item></el-col>
           <el-col :span="12"><el-form-item label="工资账号"><el-input v-model="form.salaryAccount" /></el-form-item></el-col>
+<el-col :span="12"><el-form-item label="社保基数"><el-input-number v-model="form.socialBase" :min="0" :precision="2" :controls="false" placeholder="申报缴费基数" style="width: 100%" /></el-form-item></el-col>
           <el-col :span="12"><el-form-item label="身份证号"><el-input v-model="form.idCard" /></el-form-item></el-col>
         </el-row>
       </el-form>
