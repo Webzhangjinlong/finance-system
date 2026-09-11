@@ -69,6 +69,12 @@ const routes = [
         meta: { title: '凭证映射规则' }
       },
       {
+        path: 'analysis',
+        name: 'Analysis',
+        component: () => import('@/views/analysis/index.vue'),
+        meta: { title: '财务分析' }
+      },
+      {
         path: 'system/user',
         component: () => import('@/views/system/user/index.vue'),
         meta: { title: '用户管理' }

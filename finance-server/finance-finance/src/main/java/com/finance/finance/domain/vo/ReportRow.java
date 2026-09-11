@@ -13,6 +13,8 @@ public class ReportRow {
     private String direction;
     private BigDecimal periodDebit;
     private BigDecimal periodCredit;
+    /** 月份（费用趋势按 科目×月 汇总时使用，其余查询为 null）。 */
+    private Integer periodMonth;
 
     public String getSubjectCode() {
         return subjectCode;
@@ -60,5 +62,13 @@ public class ReportRow {
 
     public void setPeriodCredit(BigDecimal periodCredit) {
         this.periodCredit = periodCredit;
+    }
+
+    public Integer getPeriodMonth() {
+        return periodMonth;
+    }
+
+    public void setPeriodMonth(Integer periodMonth) {
+        this.periodMonth = periodMonth;
     }
 }
