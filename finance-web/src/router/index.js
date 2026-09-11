@@ -100,6 +100,11 @@ const routes = [
         meta: { title: '操作日志' }
       },
       {
+        path: 'system/dict',
+        component: () => import('@/views/system/dict/index.vue'),
+        meta: { title: '字典管理' }
+      },
+      {
         path: 'hr/employee',
         component: () => import('@/views/hr/employee/index.vue'),
         meta: { title: '员工档案' }
