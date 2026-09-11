@@ -275,6 +275,13 @@ export function getHealth() {
 export function pageOperLog(params) {
   return request({ url: '/system/oper-log', method: 'get', params })
 }
+// ==================== 财务分析（F9） ====================
+export function getTrialBalance(params) {
+  return request({ url: '/finance/analysis/trial-balance', method: 'get', params })
+}
+export function getExpenseTrend(params) {
+  return request({ url: '/finance/analysis/expense-trend', method: 'get', params })
+}
 // ==================== 凭证映射规则（F8） ====================
 export function pageVoucherRule(params) {
   return request({ url: '/finance/voucher-rule/page', method: 'get', params })
