@@ -1,11 +1,15 @@
 -- ============================================================
 -- V17: F8 凭证映射引擎 —— 映射规则表 + 种子规则 + 菜单授权
--- 幂等设计：CREATE TABLE IF NOT EXISTS / INSERT ... WHERE NOT EXISTS
--- （L45 教训：建表前已确认全库无同名表；CHECK 枚举值对齐现有约定）
+-- 幂等设计：DROP IF EXISTS + CREATE + INSERT ... WHERE NOT EXISTS
+-- 说明：V1__init_schema.sql 曾预留 fin_voucher_rule 占位表（旧结构
+-- trigger_event/entry_rule/status/remark，从未使用、0 行数据）。
+-- F8 引擎采用新结构（event_type/direction/subject_code/...），
+-- 故本迁移先 DROP 占位表再按新结构重建（DROP 幂等，重跑安全）。
 -- ============================================================
 
--- 1) 映射规则表
-CREATE TABLE IF NOT EXISTS fin_voucher_rule (
+-- 1) 映射规则表（重建：V1 占位表结构不满足 F8 引擎）
+DROP TABLE IF EXISTS fin_voucher_rule;
+CREATE TABLE fin_voucher_rule (
     id               BIGSERIAL PRIMARY KEY,
     company_code     VARCHAR(20)  NOT NULL,
     rule_code        VARCHAR(50)  NOT NULL,
