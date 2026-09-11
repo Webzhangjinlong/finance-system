@@ -51,6 +51,16 @@ const routes = [
         meta: { title: '财务报表' },
       },
       {
+        path: 'finance/book',
+        component: () => import('@/views/finance/book/index.vue'),
+        meta: { title: '账簿查询' }
+      },
+      {
+        path: 'finance/period',
+        component: () => import('@/views/finance/period/index.vue'),
+        meta: { title: '期末结账' }
+      },
+      {
         path: 'expense',
         name: 'Expense',
         component: () => import('@/views/expense/index.vue'),
