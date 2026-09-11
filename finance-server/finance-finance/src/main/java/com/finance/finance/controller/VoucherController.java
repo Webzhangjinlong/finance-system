@@ -1,6 +1,8 @@
 package com.finance.finance.controller;
 
 import com.finance.common.core.Result;
+import com.finance.common.core.annotation.OperLog;
+import com.finance.common.core.annotation.OperType;
 import com.finance.common.core.domain.PageResult;
 import com.finance.finance.domain.FinVoucher;
 import com.finance.finance.dto.VoucherDTO;
@@ -54,11 +56,13 @@ public class VoucherController {
     /** 录入凭证（保存即占号）。 */
     @PostMapping
     @PreAuthorize("hasAuthority('finance:voucher:add')")
+    @OperLog(title = "凭证录入", operType = OperType.INSERT)
     public Result<FinVoucher> create(@Valid @RequestBody VoucherDTO dto) {
         return Result.ok("凭证已保存", voucherService.create(SecurityUtils.getCompanyCode(), dto));
     }
 
     /** 修改草稿凭证。 */
+    @OperLog(title = "凭证修改", operType = OperType.UPDATE)
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('finance:voucher:edit')")
     public Result<Void> update(@PathVariable Long id, @Valid @RequestBody VoucherDTO dto) {
@@ -67,6 +71,7 @@ public class VoucherController {
     }
 
     /** 审核（DRAFT → AUDITED）。 */
+    @OperLog(title = "凭证审核", operType = OperType.AUDIT)
     @PutMapping("/{id}/audit")
     @PreAuthorize("hasAuthority('finance:voucher:audit')")
     public Result<Void> audit(@PathVariable Long id) {
@@ -75,6 +80,7 @@ public class VoucherController {
     }
 
     /** 过账（AUDITED → BOOKED，期间必须 OPEN）。 */
+    @OperLog(title = "凭证过账", operType = OperType.BOOK)
     @PutMapping("/{id}/book")
     @PreAuthorize("hasAuthority('finance:voucher:book')")
     public Result<Void> book(@PathVariable Long id) {
@@ -83,6 +89,7 @@ public class VoucherController {
     }
 
     /** 冲销（BOOKED → REVERSED，生成红字凭证，幂等）。 */
+    @OperLog(title = "凭证冲销", operType = OperType.OTHER)
     @PutMapping("/{id}/reverse")
     @PreAuthorize("hasAuthority('finance:voucher:reverse')")
     public Result<Void> reverse(@PathVariable Long id) {
@@ -91,6 +98,7 @@ public class VoucherController {
     }
 
     /** 删除草稿凭证。 */
+    @OperLog(title = "凭证删除", operType = OperType.DELETE)
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('finance:voucher:del')")
     public Result<Void> delete(@PathVariable Long id) {

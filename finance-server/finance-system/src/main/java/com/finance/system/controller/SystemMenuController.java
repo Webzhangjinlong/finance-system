@@ -1,6 +1,8 @@
 package com.finance.system.controller;
 
 import com.finance.common.core.Result;
+import com.finance.common.core.annotation.OperLog;
+import com.finance.common.core.annotation.OperType;
 import com.finance.system.domain.SysMenu;
 import com.finance.system.dto.MenuDTO;
 import com.finance.system.service.SystemMenuService;
@@ -50,6 +52,7 @@ public class SystemMenuController {
         return Result.ok(menuService.create(dto));
     }
 
+    @OperLog(title = "菜单修改", operType = OperType.UPDATE)
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('system:menu:edit')")
     public Result<Void> update(@PathVariable Long id, @Valid @RequestBody MenuDTO dto) {
@@ -57,6 +60,7 @@ public class SystemMenuController {
         return Result.ok();
     }
 
+    @OperLog(title = "菜单删除", operType = OperType.DELETE)
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('system:menu:del')")
     public Result<Void> delete(@PathVariable Long id) {

@@ -1,6 +1,8 @@
 package com.finance.contract.controller;
 
 import com.finance.common.core.Result;
+import com.finance.common.core.annotation.OperLog;
+import com.finance.common.core.annotation.OperType;
 import com.finance.common.core.domain.PageResult;
 import com.finance.contract.domain.CtrContract;
 import com.finance.contract.domain.CtrPaymentPlan;
@@ -69,6 +71,7 @@ public class ContractController {
     }
 
     /** 修改合同（仅 DRAFT）。 */
+    @OperLog(title = "合同修改", operType = OperType.UPDATE)
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('contract:contract:edit')")
     public Result<Void> update(@PathVariable Long id, @Valid @RequestBody ContractDTO dto) {
@@ -77,6 +80,7 @@ public class ContractController {
     }
 
     /** 删除合同（删除保护：仅 DRAFT）。 */
+    @OperLog(title = "合同删除", operType = OperType.DELETE)
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('contract:contract:del')")
     public Result<Void> delete(@PathVariable Long id) {
@@ -85,6 +89,7 @@ public class ContractController {
     }
 
     /** 作废合同（已通过/履约中/已完成 → 已终止）。 */
+    @OperLog(title = "合同作废", operType = OperType.DELETE)
     @PostMapping("/{id}/void")
     @PreAuthorize("hasAuthority('contract:contract:void')")
     public Result<Void> voidContract(@PathVariable Long id,
@@ -94,6 +99,7 @@ public class ContractController {
     }
 
     /** 提交审批（DRAFT → APPROVING + 发起流程）。 */
+    @OperLog(title = "合同提交", operType = OperType.OTHER)
     @PostMapping("/{id}/submit")
     @PreAuthorize("hasAuthority('contract:contract:submit')")
     public Result<Void> submit(@PathVariable Long id, @Valid @RequestBody ContractSubmitDTO dto) {
@@ -102,6 +108,7 @@ public class ContractController {
     }
 
     /** 审批通过（联动合同生效 + 生成收付款计划）。 */
+    @OperLog(title = "合同审批", operType = OperType.AUDIT)
     @PutMapping("/task/{taskId}/approve")
     @PreAuthorize("hasAuthority('workflow:task:approve')")
     public Result<Void> approve(@PathVariable String taskId, @RequestParam(required = false) String comment) {
@@ -110,6 +117,7 @@ public class ContractController {
     }
 
     /** 审批驳回（合同回 DRAFT 可修改重提）。 */
+    @OperLog(title = "合同驳回", operType = OperType.OTHER)
     @PutMapping("/task/{taskId}/reject")
     @PreAuthorize("hasAuthority('workflow:task:approve')")
     public Result<Void> reject(@PathVariable String taskId, @RequestParam(required = false) String comment) {
@@ -125,6 +133,7 @@ public class ContractController {
     }
 
     /** 计划同步：到期计划 → 生成应收/应付单（幂等）。 */
+    @OperLog(title = "合同计划同步", operType = OperType.OTHER)
     @PostMapping("/{id}/plans/sync")
     @PreAuthorize("hasAuthority('contract:plan:sync')")
     public Result<Integer> syncPlans(@PathVariable Long id) {
@@ -132,6 +141,7 @@ public class ContractController {
     }
 
     /** 收款核销：回写应收单 + 计划已收金额/状态（超额拦截）。 */
+    @OperLog(title = "合同收款核销", operType = OperType.OTHER)
     @PostMapping("/plans/{planId}/receipt")
     @PreAuthorize("hasAuthority('finance:receivable:write')")
     public Result<CtrPaymentPlan> receipt(@PathVariable Long planId,
@@ -142,6 +152,7 @@ public class ContractController {
     }
 
     /** 付款核销：回写应付单 + 计划已付金额/状态（超额拦截）。 */
+    @OperLog(title = "合同付款核销", operType = OperType.OTHER)
     @PostMapping("/plans/{planId}/payment")
     @PreAuthorize("hasAuthority('finance:receivable:write')")
     public Result<CtrPaymentPlan> payment(@PathVariable Long planId,

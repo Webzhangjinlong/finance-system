@@ -60,3 +60,7 @@
 | V14 迁移 sys_attachment 已存在 / status CHECK 违反 | V1 已建同名表未检索；枚举值未核对 | V14 幂等 ALTER 重写 + 本地重建全新库复现 | ✅ 已固化 L45 |
 | push 被 pre-receive hook 拒绝 | git add -A 误提交 107MB MinIO 二进制 + 日志 | .gitignore 补忽略 + 提交前核对 staged | ✅ 已固化 L46 |
 | 登录日志不落库（失败分支）| ① V1 缺五件套列 insert 报错被吞 ② 补列后 login() @Transactional + 失败抛异常 → 回滚日志 | V15 补列 + login 去 @Transactional + LoginLogWriteTest 真实落库断言 | ✅ 已固化 L47 |
+| S4 跨模块编译失败 | @OperLog 注解首版放 finance-system，workflow/contract 等模块不依赖 system → aspectj/注解找不到 | 注解移 finance-common（com.finance.common.core.annotation），切面留 system；全库替换 import 12 个文件 | ✅ 已固化 L48（PR#30） |
+| S4 脱敏漏 POJO 字段 | maskSensitive 只递归 Map/List，ResetPwdDTO.password（POJO 字段）原样入参 | 先 valueToTree 转 JsonNode 再递归脱敏（ObjectNode/ArrayNode） | ✅ 已固化 L48 |
+| S4 ArchUnit layered_dependencies 红 | 切面直调 SysOperLogMapper 违反 "Mapper 仅 Service 访问" | 分层规则显式增加 Aspect 层（definedBy com.finance..aspect..），Mapper 允许 Service/Aspect 访问，Aspect 不被访问 | ✅ 已固化（规则+测试，PR#30） |
+| 浏览器操作日志页 403 | localStorage 残留 9/10 过期 token（页面自动跳转未真正重登）→ 过期 token 全部接口 403（非 401） | 显式 localStorage.clear() 后重新登录，curl 用新 token 验证 200 后再浏览器实测 | ✅ 经验（L48 关联） |

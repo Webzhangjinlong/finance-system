@@ -1,6 +1,8 @@
 package com.finance.system.controller;
 
 import com.finance.common.core.Result;
+import com.finance.common.core.annotation.OperLog;
+import com.finance.common.core.annotation.OperType;
 import com.finance.common.core.domain.PageResult;
 import com.finance.framework.security.SecurityUtils;
 import com.finance.system.domain.SysAttachment;
@@ -40,6 +42,7 @@ public class FileController {
     }
 
     /** 上传附件（multipart/form-data：file + 可选 bizType/bizId）。 */
+    @OperLog(title = "附件上传", operType = OperType.UPLOAD)
     @PostMapping("/upload")
     @PreAuthorize("hasAuthority('system:attachment:upload')")
     public Result<SysAttachment> upload(@RequestParam("file") MultipartFile file,

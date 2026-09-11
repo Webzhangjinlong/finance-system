@@ -1,6 +1,8 @@
 package com.finance.system.controller;
 
 import com.finance.common.core.Result;
+import com.finance.common.core.annotation.OperLog;
+import com.finance.common.core.annotation.OperType;
 import com.finance.common.core.domain.PageResult;
 import com.finance.system.domain.SysRole;
 import com.finance.system.dto.AssignDTO;
@@ -62,6 +64,7 @@ public class SystemRoleController {
         return Result.ok(roleService.create(dto));
     }
 
+    @OperLog(title = "角色修改", operType = OperType.UPDATE)
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('system:role:edit')")
     public Result<Void> update(@PathVariable Long id, @Valid @RequestBody RoleDTO dto) {
@@ -69,6 +72,7 @@ public class SystemRoleController {
         return Result.ok();
     }
 
+    @OperLog(title = "角色分配菜单", operType = OperType.GRANT)
     @PutMapping("/{id}/menus")
     @PreAuthorize("hasAuthority('system:role:assign')")
     public Result<Void> assignMenus(@PathVariable Long id, @Valid @RequestBody AssignDTO dto) {
@@ -76,6 +80,7 @@ public class SystemRoleController {
         return Result.ok();
     }
 
+    @OperLog(title = "角色删除", operType = OperType.DELETE)
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('system:role:del')")
     public Result<Void> delete(@PathVariable Long id) {
