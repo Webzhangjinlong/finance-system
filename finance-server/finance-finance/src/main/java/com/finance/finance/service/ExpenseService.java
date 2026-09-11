@@ -53,17 +53,20 @@ public class ExpenseService {
     private final WorkflowService workflowService;
     private final VoucherService voucherService;
     private final SubjectService subjectService;
+    private final VoucherRuleEngineService voucherRuleEngineService;
 
     public ExpenseService(FinExpenseClaimMapper claimMapper,
                           FinExpenseItemMapper itemMapper,
                           WorkflowService workflowService,
                           VoucherService voucherService,
-                          SubjectService subjectService) {
+                          SubjectService subjectService,
+                          VoucherRuleEngineService voucherRuleEngineService) {
         this.claimMapper = claimMapper;
         this.itemMapper = itemMapper;
         this.workflowService = workflowService;
         this.voucherService = voucherService;
         this.subjectService = subjectService;
+        this.voucherRuleEngineService = voucherRuleEngineService;
     }
 
     /** 新建报销单（DRAFT）。 */
@@ -272,7 +275,16 @@ public class ExpenseService {
                     ? "报销 " + claim.getClaimNo() : item.getSummary();
             entries.add(entry(item.getSubjectCode(), summary, item.getAmount(), null));
         }
-        entries.add(entry("1002", "报销打款 " + claim.getClaimNo(), null, claim.getAmount()));
+        // F8 映射引擎：贷方科目由规则驱动（EXPENSE/PAID → 规则 subject_code + 摘要模板）；
+        // 无规则时回退默认 1002 银行存款（兼容历史 F6 硬编码映射）
+        java.util.List<FinVoucherEntry> ruleEntries = voucherRuleEngineService.resolve(
+                claim.getCompanyCode(), FinExpenseClaim.SOURCE_TYPE, "PAID",
+                claim.getAmount(), java.util.Map.of("claimNo", claim.getClaimNo()));
+        if (ruleEntries.isEmpty()) {
+            entries.add(entry("1002", "报销打款 " + claim.getClaimNo(), null, claim.getAmount()));
+        } else {
+            entries.addAll(ruleEntries);
+        }
         dto.setEntries(entries);
         return dto;
     }

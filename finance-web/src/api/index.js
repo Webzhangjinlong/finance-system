@@ -275,3 +275,19 @@ export function getHealth() {
 export function pageOperLog(params) {
   return request({ url: '/system/oper-log', method: 'get', params })
 }
+// ==================== 凭证映射规则（F8） ====================
+export function pageVoucherRule(params) {
+  return request({ url: '/finance/voucher-rule/page', method: 'get', params })
+}
+export function createVoucherRule(data) {
+  return request({ url: '/finance/voucher-rule', method: 'post', data })
+}
+export function updateVoucherRule(id, data) {
+  return request({ url: `/finance/voucher-rule/${id}`, method: 'put', data })
+}
+export function switchVoucherRuleStatus(id, enabled) {
+  return request({ url: `/finance/voucher-rule/${id}/status`, method: 'put', params: { enabled } })
+}
+export function deleteVoucherRule(id) {
+  return request({ url: `/finance/voucher-rule/${id}`, method: 'delete' })
+}

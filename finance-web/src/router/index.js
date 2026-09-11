@@ -63,6 +63,12 @@ const routes = [
         meta: { title: '应收应付账龄' }
       },
       {
+        path: 'voucher-rule',
+        name: 'VoucherRule',
+        component: () => import('@/views/voucher-rule/index.vue'),
+        meta: { title: '凭证映射规则' }
+      },
+      {
         path: 'system/user',
         component: () => import('@/views/system/user/index.vue'),
         meta: { title: '用户管理' }
