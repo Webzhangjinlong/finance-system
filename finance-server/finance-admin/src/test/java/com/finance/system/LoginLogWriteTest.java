@@ -1,13 +1,16 @@
 package com.finance.system;
 
 import com.finance.common.core.exception.BusinessException;
+import com.finance.framework.security.LoginFailCounter;
 import com.finance.system.domain.LoginBody;
 import com.finance.system.domain.LoginUserVO;
 import com.finance.system.service.AuthService;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -16,6 +19,10 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.when;
 
 /**
  * 登录日志落库集成测试（修复 V15：sys_login_log 补公共五件套列）。
@@ -23,6 +30,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * <p>背景：V1 建表缺 create_by/create_time/update_by/update_time/deleted，
  * SysLoginLog 实体继承 BaseEntity（INSERT 写五件套列）→ 写入被 AuthService.writeLoginLog 的
  * try-catch 吞掉（登录不受影响，但审计日志丢失）。V15 补列后，登录成功/失败均应真实落库。</p>
+ *
+ * <p>说明：LoginFailCounter 为 Redis 实现，CI 环境无 Redis，故 @MockBean 隔离
+ * （登录失败计数/锁定不属于本测试目标）。</p>
  */
 @SpringBootTest
 @ActiveProfiles("test")
@@ -32,6 +42,17 @@ class LoginLogWriteTest {
     private AuthService authService;
     @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    @MockBean
+    private LoginFailCounter loginFailCounter;
+
+    @BeforeEach
+    void setUp() {
+        lenient().when(loginFailCounter.isLocked(anyString())).thenReturn(false);
+        lenient().when(loginFailCounter.recordFailure(anyString())).thenReturn(1L);
+        lenient().when(loginFailCounter.maxFailTimesHint()).thenReturn("5");
+        doNothing().when(loginFailCounter).clearFailure(anyString());
+    }
 
     @AfterEach
     void cleanUp() {
