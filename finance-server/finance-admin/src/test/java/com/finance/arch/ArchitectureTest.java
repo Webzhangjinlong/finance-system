@@ -130,10 +130,10 @@ public class ArchitectureTest {
 
     @ArchTest
     static final ArchRule service_naming =
-            classes().that().resideInAPackage("com.finance..service..")
+            // 业务服务类命名约束仅针对顶层类（内部类如 DictCacheItem 不受限）
+            classes().that().resideInAPackage("com.finance..service..").and().areTopLevelClasses()
                     .should().haveSimpleNameEndingWith("Service")
                     .allowEmptyShould(true);
-
     @ArchTest
     static final ArchRule mapper_naming =
             classes().that().resideInAPackage("com.finance..mapper..")
