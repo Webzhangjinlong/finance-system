@@ -1,6 +1,8 @@
 package com.finance.finance.controller;
 
 import com.finance.common.core.Result;
+import com.finance.common.core.annotation.OperLog;
+import com.finance.common.core.annotation.OperType;
 import com.finance.common.core.domain.PageResult;
 import com.finance.finance.domain.FinExpenseClaim;
 import com.finance.finance.dto.ExpenseClaimDTO;
@@ -57,6 +59,7 @@ public class ExpenseController {
         return Result.ok(expenseService.create(SecurityUtils.getCompanyCode(), dto));
     }
 
+    @OperLog(title = "报销修改", operType = OperType.UPDATE)
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('finance:expense:edit')")
     public Result<Void> update(@PathVariable Long id, @Valid @RequestBody ExpenseClaimDTO dto) {
@@ -64,6 +67,7 @@ public class ExpenseController {
         return Result.ok();
     }
 
+    @OperLog(title = "报销删除", operType = OperType.DELETE)
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('finance:expense:edit')")
     public Result<Void> delete(@PathVariable Long id) {
@@ -71,6 +75,7 @@ public class ExpenseController {
         return Result.ok();
     }
 
+    @OperLog(title = "报销提交", operType = OperType.OTHER)
     @PutMapping("/{id}/submit")
     @PreAuthorize("hasAuthority('finance:expense:edit')")
     public Result<Void> submit(@PathVariable Long id, @Valid @RequestBody ExpenseSubmitDTO dto) {
@@ -79,6 +84,7 @@ public class ExpenseController {
     }
 
     /** 审批通过回调（待办在 /workflow/todo，审批人点击后回调本端点）。 */
+    @OperLog(title = "报销审批", operType = OperType.AUDIT)
     @PutMapping("/task/{taskId}/approve")
     @PreAuthorize("hasAuthority('finance:expense:approve')")
     public Result<Void> approveTask(@PathVariable String taskId, @RequestParam(required = false) String comment) {
@@ -87,6 +93,7 @@ public class ExpenseController {
     }
 
     /** 审批驳回回调。 */
+    @OperLog(title = "报销驳回", operType = OperType.OTHER)
     @PutMapping("/task/{taskId}/reject")
     @PreAuthorize("hasAuthority('finance:expense:approve')")
     public Result<Void> rejectTask(@PathVariable String taskId, @RequestParam(required = false) String comment) {
@@ -95,6 +102,7 @@ public class ExpenseController {
     }
 
     /** 财务打款（APPROVED → PAID，自动生成费用凭证，source 幂等）。 */
+    @OperLog(title = "报销打款", operType = OperType.PAY)
     @PutMapping("/{id}/pay")
     @PreAuthorize("hasAuthority('finance:expense:pay')")
     public Result<Void> pay(@PathVariable Long id) {

@@ -1,6 +1,8 @@
 package com.finance.finance.controller;
 
 import com.finance.common.core.Result;
+import com.finance.common.core.annotation.OperLog;
+import com.finance.common.core.annotation.OperType;
 import com.finance.finance.domain.FinPeriod;
 import com.finance.finance.service.PeriodService;
 import com.finance.framework.security.SecurityUtils;
@@ -34,6 +36,7 @@ public class PeriodController {
     }
 
     /** 期末结账（校验 + 损益结转 + CLOSED）。 */
+    @OperLog(title = "期间结账", operType = OperType.CLOSE)
     @PutMapping("/close")
     @PreAuthorize("hasAuthority('finance:period:close')")
     public Result<Void> close(@RequestParam int periodYear, @RequestParam int periodMonth) {
@@ -42,6 +45,7 @@ public class PeriodController {
     }
 
     /** 反结账（删除结转凭证 + 恢复 OPEN）。 */
+    @OperLog(title = "期间反结账", operType = OperType.CLOSE)
     @PutMapping("/reopen")
     @PreAuthorize("hasAuthority('finance:period:reopen')")
     public Result<Void> reopen(@RequestParam int periodYear, @RequestParam int periodMonth) {

@@ -30,3 +30,5 @@ _jarcheck2/
 tools/minio/
 finance-server/finance-admin/hs_err_pid*.log
 finance-server/finance-admin/replay_pid*.log
+
+tools/logs/

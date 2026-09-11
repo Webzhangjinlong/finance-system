@@ -54,9 +54,11 @@ public class ArchitectureTest {
                     .layer("Service").definedBy("com.finance..service..")
                     .layer("Mapper").definedBy("com.finance..mapper..")
                     .layer("Task").definedBy("com.finance.task..")
+                    .layer("Aspect").definedBy("com.finance..aspect..")
                     .whereLayer("Controller").mayNotBeAccessedByAnyLayer()
                     .whereLayer("Service").mayOnlyBeAccessedByLayers("Controller", "Task")
-                    .whereLayer("Mapper").mayOnlyBeAccessedByLayers("Service");
+                    .whereLayer("Mapper").mayOnlyBeAccessedByLayers("Service", "Aspect")
+                    .whereLayer("Aspect").mayNotBeAccessedByAnyLayer();
 
     @ArchTest
     static final ArchRule controller_never_touches_controller_or_mapper =

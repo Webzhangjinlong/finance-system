@@ -1,6 +1,8 @@
 package com.finance.workflow.controller;
 
 import com.finance.common.core.Result;
+import com.finance.common.core.annotation.OperLog;
+import com.finance.common.core.annotation.OperType;
 import com.finance.framework.security.SecurityUtils;
 import com.finance.workflow.domain.WfProcessInstance;
 import com.finance.workflow.dto.WorkflowStartDTO;
@@ -33,6 +35,7 @@ public class WorkflowController {
     }
 
     /** 发起审批（一单一流程，幂等）。 */
+    @OperLog(title = "审批发起审批", operType = OperType.OTHER)
     @PostMapping("/start")
     @PreAuthorize("hasAuthority('workflow:instance:start')")
     public Result<WfProcessInstance> start(@Valid @RequestBody WorkflowStartDTO dto) {
@@ -48,6 +51,7 @@ public class WorkflowController {
     }
 
     /** 审批通过。 */
+    @OperLog(title = "审批审批", operType = OperType.AUDIT)
     @PutMapping("/task/{taskId}/approve")
     @PreAuthorize("hasAuthority('workflow:task:approve')")
     public Result<Void> approve(@PathVariable String taskId,
@@ -57,6 +61,7 @@ public class WorkflowController {
     }
 
     /** 审批驳回。 */
+    @OperLog(title = "审批驳回", operType = OperType.OTHER)
     @PutMapping("/task/{taskId}/reject")
     @PreAuthorize("hasAuthority('workflow:task:approve')")
     public Result<Void> reject(@PathVariable String taskId,

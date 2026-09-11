@@ -1,6 +1,8 @@
 package com.finance.system.controller;
 
 import com.finance.common.core.Result;
+import com.finance.common.core.annotation.OperLog;
+import com.finance.common.core.annotation.OperType;
 import com.finance.common.core.domain.PageResult;
 import com.finance.system.domain.SysUser;
 import com.finance.system.dto.AssignDTO;
@@ -56,6 +58,7 @@ public class SystemUserController {
         return Result.ok(userService.create(dto));
     }
 
+    @OperLog(title = "用户修改", operType = OperType.UPDATE)
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('system:user:edit')")
     public Result<Void> update(@PathVariable Long id, @Valid @RequestBody UserDTO dto) {
@@ -63,6 +66,7 @@ public class SystemUserController {
         return Result.ok();
     }
 
+    @OperLog(title = "用户重置密码", operType = OperType.UPDATE)
     @PutMapping("/{id}/reset-pwd")
     @PreAuthorize("hasAuthority('system:user:reset-pwd')")
     public Result<Void> resetPwd(@PathVariable Long id, @Valid @RequestBody ResetPwdDTO dto) {
@@ -70,6 +74,7 @@ public class SystemUserController {
         return Result.ok();
     }
 
+    @OperLog(title = "用户分配角色", operType = OperType.GRANT)
     @PutMapping("/{id}/roles")
     @PreAuthorize("hasAuthority('system:user:assign')")
     public Result<Void> assignRoles(@PathVariable Long id, @Valid @RequestBody AssignDTO dto) {
@@ -77,6 +82,7 @@ public class SystemUserController {
         return Result.ok();
     }
 
+    @OperLog(title = "用户删除", operType = OperType.DELETE)
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('system:user:del')")
     public Result<Void> delete(@PathVariable Long id) {

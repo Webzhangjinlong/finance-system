@@ -1,6 +1,8 @@
 package com.finance.hr.controller;
 
 import com.finance.common.core.Result;
+import com.finance.common.core.annotation.OperLog;
+import com.finance.common.core.annotation.OperType;
 import com.finance.common.core.domain.PageResult;
 import com.finance.framework.security.SecurityUtils;
 import com.finance.hr.domain.HrSalary;
@@ -42,6 +44,7 @@ public class SalaryController {
         return Result.ok(salaryService.page(SecurityUtils.getCompanyCode(), year, month, employeeId, page, size));
     }
 
+    @OperLog(title = "工资草稿修改", operType = OperType.UPDATE)
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('hr:salary:calculate')")
     public Result<Void> editDraft(@PathVariable Long id, @Valid @RequestBody SalaryDTO dto) {
@@ -49,6 +52,7 @@ public class SalaryController {
         return Result.ok();
     }
 
+    @OperLog(title = "工资核算", operType = OperType.OTHER)
     @PostMapping("/calculate")
     @PreAuthorize("hasAuthority('hr:salary:calculate')")
     public Result<Integer> calculate(@RequestParam int year,
@@ -57,6 +61,7 @@ public class SalaryController {
         return Result.ok(salaryService.calculate(SecurityUtils.getCompanyCode(), year, month, employeeId));
     }
 
+    @OperLog(title = "工资提交", operType = OperType.OTHER)
     @PutMapping("/{id}/submit")
     @PreAuthorize("hasAuthority('hr:salary:submit')")
     public Result<Void> submit(@PathVariable Long id) {
@@ -64,6 +69,7 @@ public class SalaryController {
         return Result.ok();
     }
 
+    @OperLog(title = "工资审批", operType = OperType.AUDIT)
     @PutMapping("/{id}/approve")
     @PreAuthorize("hasAuthority('hr:salary:approve')")
     public Result<Void> approve(@PathVariable Long id) {

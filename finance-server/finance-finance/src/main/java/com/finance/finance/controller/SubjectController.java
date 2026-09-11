@@ -1,6 +1,8 @@
 package com.finance.finance.controller;
 
 import com.finance.common.core.Result;
+import com.finance.common.core.annotation.OperLog;
+import com.finance.common.core.annotation.OperType;
 import com.finance.finance.domain.FinSubject;
 import com.finance.finance.service.SubjectService;
 import com.finance.framework.security.SecurityUtils;
@@ -39,12 +41,14 @@ public class SubjectController {
     /** 新增科目。 */
     @PostMapping
     @PreAuthorize("hasAuthority('finance:subject:add')")
+    @OperLog(title = "科目新增", operType = OperType.INSERT)
     public Result<Void> add(@RequestBody FinSubject subject) {
         subjectService.add(SecurityUtils.getCompanyCode(), subject);
         return Result.ok();
     }
 
     /** 修改科目（编码禁止修改）。 */
+    @OperLog(title = "科目修改", operType = OperType.UPDATE)
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('finance:subject:edit')")
     public Result<Void> update(@PathVariable Long id, @RequestBody FinSubject subject) {
@@ -53,6 +57,7 @@ public class SubjectController {
     }
 
     /** 删除科目（子科目/发生额保护）。 */
+    @OperLog(title = "科目删除", operType = OperType.DELETE)
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('finance:subject:del')")
     public Result<Void> delete(@PathVariable Long id) {

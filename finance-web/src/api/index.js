@@ -271,3 +271,7 @@ export function getAttachmentFile(id) {
 export function getHealth() {
   return request({ url: '/system/health', method: 'get' })
 }
+// ==================== 操作日志（S4） ====================
+export function pageOperLog(params) {
+  return request({ url: '/system/oper-log', method: 'get', params })
+}
