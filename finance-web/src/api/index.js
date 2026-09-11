@@ -275,6 +275,31 @@ export function getHealth() {
 export function pageOperLog(params) {
   return request({ url: '/system/oper-log', method: 'get', params })
 }
+// ==================== 字典管理（S3） ====================
+export function getDictTypePage(params) {
+  return request({ url: '/system/dict/page', method: 'get', params })
+}
+export function createDictType(data) {
+  return request({ url: '/system/dict', method: 'post', data })
+}
+export function updateDictType(data) {
+  return request({ url: '/system/dict', method: 'put', data })
+}
+export function deleteDictType(id) {
+  return request({ url: `/system/dict/${id}`, method: 'delete' })
+}
+export function getDictData(dictType) {
+  return request({ url: '/system/dict/data', method: 'get', params: { dictType } })
+}
+export function createDictData(data) {
+  return request({ url: '/system/dict/data', method: 'post', data })
+}
+export function updateDictData(data) {
+  return request({ url: '/system/dict/data', method: 'put', data })
+}
+export function deleteDictData(id) {
+  return request({ url: `/system/dict/data/${id}`, method: 'delete' })
+}
 // ==================== 财务分析（F9） ====================
 export function getTrialBalance(params) {
   return request({ url: '/finance/analysis/trial-balance', method: 'get', params })
