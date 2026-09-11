@@ -12,6 +12,10 @@ import java.util.List;
 @TableName("fin_subject")
 public class FinSubject extends BaseEntity {
 
+    /** 科目余额方向（direction）：DEBIT=借方余额（资产/成本/费用），CREDIT=贷方余额（负债/权益/收入）。 */
+    public static final String DIR_DEBIT = "DEBIT";
+    public static final String DIR_CREDIT = "CREDIT";
+
     private String companyCode;
     private String subjectCode;
     private String subjectName;
