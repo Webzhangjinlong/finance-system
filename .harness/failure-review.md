@@ -64,3 +64,4 @@
 | S4 脱敏漏 POJO 字段 | maskSensitive 只递归 Map/List，ResetPwdDTO.password（POJO 字段）原样入参 | 先 valueToTree 转 JsonNode 再递归脱敏（ObjectNode/ArrayNode） | ✅ 已固化 L48 |
 | S4 ArchUnit layered_dependencies 红 | 切面直调 SysOperLogMapper 违反 "Mapper 仅 Service 访问" | 分层规则显式增加 Aspect 层（definedBy com.finance..aspect..），Mapper 允许 Service/Aspect 访问，Aspect 不被访问 | ✅ 已固化（规则+测试，PR#30） |
 | 浏览器操作日志页 403 | localStorage 残留 9/10 过期 token（页面自动跳转未真正重登）→ 过期 token 全部接口 403（非 401） | 显式 localStorage.clear() 后重新登录，curl 用新 token 验证 200 后再浏览器实测 | ✅ 经验（L48 关联） |
+| F8 CI backend-ci 红（145 errors） | V1 占位表 fin_voucher_rule（旧结构）导致 V17 CREATE IF NOT EXISTS 跳过，INSERT 引用新列 event_type 报错；全新库（CI）首次复现 | V17 改为 DROP IF EXISTS + CREATE 重建（占位表从未使用）；本地 test 库删 V17 flyway 记录重跑模拟 CI 路径 | ✅ 已固化 L49（PR#32） |
