@@ -123,7 +123,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { socialRulePage, socialRuleSave, socialRuleDelete, socialCalculate, socialDetailPage, employeePage } from '@/api/index.js'
+import { socialRulePage, socialRuleSave, socialRuleDelete, socialCalculate, socialDetailPage, pageEmployee } from '@/api/index.js'
 
 const types = [
   { value: 'PENSION', label: '养老保险' },
@@ -256,7 +256,7 @@ async function loadDetails() {
 
 async function loadEmployees() {
   try {
-    const res = await employeePage({ status: 'ONBOARD', page: 1, size: 200 })
+    const res = await pageEmployee({ status: 'ONBOARD', page: 1, size: 200 })
     employees.value = res.data.records || []
   } catch (e) { /* 不阻塞 */ }
 }
