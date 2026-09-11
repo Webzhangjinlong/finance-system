@@ -65,3 +65,5 @@
 | L49 | F8 迁移两连踩：①V1__init_schema.sql 已建 fin_voucher_rule 占位表（旧结构 trigger_event/entry_rule/status/remark，0 行从未使用）→ V17 用 CREATE TABLE IF NOT EXISTS 跳过建表 → INSERT 引用新列 event_type 报"字段不存在"，本地 test 库（手动跑过一半）与 CI 全新库双双失败，本地曾被误判为"脏残留删表"掩盖了 V1 占位表这一根因；②sys_menu 列名/枚举与 sys_role_menu id 与预期不符：order_num→sort_order、menu_type 枚举 C/F→DIR/MENU/BUTTON、sys_role_menu.id 无序列默认需显式赋值（现有行模式 100000+menu_id） | 写迁移只查了目标表区间，未检索历史迁移是否已建同名表（L45 教训复踩）；CHECK 枚举/列名凭记忆未查实际 DDL | V17 改为 DROP TABLE IF EXISTS + CREATE（占位表从未使用，重建安全且幂等）；写迁移前必查：历史迁移同名表 + 目标表 information_schema.columns + CHECK 约束枚举 + 关联表 id 生成方式（L45/L49 并入迁移 checklist） | ✅ 已固化（V17 重写 + PR#32） |
 
 | L51 | S3 字典管理 | ① 误 import PageUtils（实际不存在），MyBatis-Plus 分页用 `Page<T>` + `PageResult.of`；② @OperLog 属性是 title/operType 且枚举是 INSERT 非 ADD；③ 逻辑删与 DB 唯一约束（uq_sys_dict_type）冲突：删除后同 dict_type 无法重建 → 配置数据改物理删；④ 新测试依赖 Redis 但 CI 无 redis service → backend-ci 补 redis:7 | 物理删 Mapper 注解 @Delete + CI redis service | ✅ |
+
+| L52 | F3/F4 前端页面批次 | ① router 锚点格式多变（meta 尾逗号/有无 name 字段），批量脚本需按实际行格式匹配；② 纯前端页面批次（后端接口+权限 V1 已就绪）零后端改动即可闭环，验证以 API+浏览器实测为主；③ 结账实测用"校验拒绝路径"（未过账凭证拦截）作证据，成功路径由 PeriodServiceTest 6 例覆盖 | 锚点先 grep 实际格式再写脚本；前端批次复用 V1 权限菜单 | ✅ |
