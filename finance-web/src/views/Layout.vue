@@ -28,6 +28,7 @@
 <el-menu-item index="/hr/employee"><el-icon><User /></el-icon>员工档案</el-menu-item>
 <el-menu-item index="/hr/attendance"><el-icon><Calendar /></el-icon>考勤管理</el-menu-item>
 <el-menu-item index="/hr/salary"><el-icon><Money /></el-icon>工资核算</el-menu-item>
+<el-menu-item index="/hr/social"><el-icon><Collection /></el-icon>社保公积金</el-menu-item>
 </el-sub-menu>
 </el-sub-menu>
       </el-menu>

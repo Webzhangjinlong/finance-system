@@ -173,6 +173,7 @@ public class HrService {
         emp.setLeaveDate(dto.getLeaveDate());
         emp.setContractExpireDate(dto.getContractExpireDate());
         emp.setSalaryAccount(dto.getSalaryAccount());
+        emp.setSocialBase(dto.getSocialBase());
         emp.setStatus(StringUtils.hasText(dto.getStatus()) ? dto.getStatus() : HrEmployee.STATUS_ONBOARD);
         emp.setUserId(dto.getUserId());
         employeeMapper.insert(emp);
@@ -203,6 +204,7 @@ public class HrService {
         emp.setLeaveDate(dto.getLeaveDate());
         emp.setContractExpireDate(dto.getContractExpireDate());
         emp.setSalaryAccount(dto.getSalaryAccount());
+        emp.setSocialBase(dto.getSocialBase());
         emp.setStatus(StringUtils.hasText(dto.getStatus()) ? dto.getStatus() : HrEmployee.STATUS_ONBOARD);
         emp.setUserId(dto.getUserId());
         employeeMapper.updateById(emp);

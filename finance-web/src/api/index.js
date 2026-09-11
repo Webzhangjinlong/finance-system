@@ -340,3 +340,20 @@ export function switchVoucherRuleStatus(id, enabled) {
 export function deleteVoucherRule(id) {
   return request({ url: `/finance/voucher-rule/${id}`, method: 'delete' })
 }
+
+// ==================== 五险一金（批次 A） ====================
+export function socialRulePage(params) {
+  return request({ url: '/hr/social/rule/page', method: 'get', params })
+}
+export function socialRuleSave(data) {
+  return request({ url: '/hr/social/rule', method: 'post', data })
+}
+export function socialRuleDelete(id) {
+  return request({ url: `/hr/social/rule/${id}`, method: 'delete' })
+}
+export function socialCalculate(params) {
+  return request({ url: '/hr/social/calculate', method: 'post', params })
+}
+export function socialDetailPage(params) {
+  return request({ url: '/hr/social/detail/page', method: 'get', params })
+}

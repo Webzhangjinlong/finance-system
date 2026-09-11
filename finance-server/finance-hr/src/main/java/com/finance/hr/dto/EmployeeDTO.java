@@ -31,6 +31,8 @@ public class EmployeeDTO {
     /** 劳动合同到期日（V14）。 */
     private LocalDate contractExpireDate;
     private String salaryAccount;
+    /** 社保申报缴费基数（批次 A）。 */
+    private java.math.BigDecimal socialBase;
     private String status;
     private Long userId;
 
@@ -144,5 +146,13 @@ public class EmployeeDTO {
 
     public void setUserId(Long userId) {
         this.userId = userId;
+    }
+
+    public java.math.BigDecimal getSocialBase() {
+        return socialBase;
+    }
+
+    public void setSocialBase(java.math.BigDecimal socialBase) {
+        this.socialBase = socialBase;
     }
 }
