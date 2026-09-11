@@ -300,6 +300,23 @@ export function updateDictData(data) {
 export function deleteDictData(id) {
   return request({ url: `/system/dict/data/${id}`, method: 'delete' })
 }
+// ==================== 账簿查询（F3） ====================
+export function getBook(type, params) {
+  return request({ url: `/finance/book/${type}`, method: 'get', params })
+}
+export function exportBook(type, params) {
+  return request({ url: `/finance/book/${type}/export`, method: 'get', params, responseType: 'blob' })
+}
+// ==================== 期末结账（F4） ====================
+export function listPeriod() {
+  return request({ url: '/finance/period/list', method: 'get' })
+}
+export function closePeriod(periodYear, periodMonth) {
+  return request({ url: '/finance/period/close', method: 'put', params: { periodYear, periodMonth } })
+}
+export function reopenPeriod(periodYear, periodMonth) {
+  return request({ url: '/finance/period/reopen', method: 'put', params: { periodYear, periodMonth } })
+}
 // ==================== 财务分析（F9） ====================
 export function getTrialBalance(params) {
   return request({ url: '/finance/analysis/trial-balance', method: 'get', params })
