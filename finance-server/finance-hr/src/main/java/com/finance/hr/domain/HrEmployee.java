@@ -30,6 +30,8 @@ public class HrEmployee extends BaseEntity {
     /** 劳动合同到期日（V14；到期前 30 天提醒 HR，docs 6.1）。 */
     private LocalDate contractExpireDate;
     private String salaryAccount;
+    /** 社保申报缴费基数（批次 A：五险一金智能核算基数识别优先取此值）。 */
+    private java.math.BigDecimal socialBase;
     private String status;
     private Long userId;
 
@@ -163,5 +165,13 @@ public class HrEmployee extends BaseEntity {
 
     public void setUserId(Long userId) {
         this.userId = userId;
+    }
+
+    public java.math.BigDecimal getSocialBase() {
+        return socialBase;
+    }
+
+    public void setSocialBase(java.math.BigDecimal socialBase) {
+        this.socialBase = socialBase;
     }
 }

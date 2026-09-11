@@ -128,6 +128,11 @@ const routes = [
         path: 'hr/salary',
         component: () => import('@/views/hr/salary/index.vue'),
         meta: { title: '工资核算' }
+      },
+      {
+        path: 'hr/social',
+        component: () => import('@/views/hr/social/index.vue'),
+        meta: { title: '社保公积金' }
       }
     ]
   }

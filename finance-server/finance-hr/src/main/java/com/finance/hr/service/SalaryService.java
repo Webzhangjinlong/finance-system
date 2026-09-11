@@ -53,15 +53,18 @@ public class SalaryService {
     private final HrSalaryItemMapper salaryItemMapper;
     private final HrEmployeeMapper employeeMapper;
     private final HrAttendanceMapper attendanceMapper;
+    private final SocialInsuranceService socialInsuranceService;
 
     public SalaryService(HrSalaryMapper salaryMapper,
                          HrSalaryItemMapper salaryItemMapper,
                          HrEmployeeMapper employeeMapper,
-                         HrAttendanceMapper attendanceMapper) {
+                         HrAttendanceMapper attendanceMapper,
+                         SocialInsuranceService socialInsuranceService) {
         this.salaryMapper = salaryMapper;
         this.salaryItemMapper = salaryItemMapper;
         this.employeeMapper = employeeMapper;
         this.attendanceMapper = attendanceMapper;
+        this.socialInsuranceService = socialInsuranceService;
     }
 
     /** 工资分页（年月/员工过滤，联员工姓名工号）。 */
@@ -142,6 +145,17 @@ public class SalaryService {
                 salary.setStatus(HrSalary.STATUS_DRAFT);
             }
             BigDecimal absentDeduct = absentDeduction(companyCode, emp, year, month);
+            // 批次 A：自动核算五险一金（规则表 + 基数 clamp + 个人/单位金额），替代手工填写
+            if (socialInsuranceService.hasRules(companyCode, year, month)) {
+                socialInsuranceService.calculate(companyCode, year, month, emp.getId());
+                BigDecimal[] socialTotals = socialInsuranceService.personalTotals(companyCode, emp.getId(), year, month);
+                salary.setSocialSecurity(socialTotals[0]);
+                salary.setHousingFund(socialTotals[1]);
+            } else {
+                // 宽容：无当期规则时五险一金按 0 处理（独立核算接口仍显式报错），配置规则后自动生效
+                salary.setSocialSecurity(BigDecimal.ZERO);
+                salary.setHousingFund(BigDecimal.ZERO);
+            }
             BigDecimal tax = cumulativeWithholdingTax(companyCode, emp, salary, year, month, absentDeduct);
             salary.setTax(tax);
             BigDecimal gross = salary.getBaseSalary().add(salary.getBonus())

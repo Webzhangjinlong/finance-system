@@ -50,11 +50,22 @@ class HrServiceTest {
 
     @BeforeEach
     void clean() {
+        jdbcTemplate.execute("DELETE FROM hr_social_detail");
+        jdbcTemplate.execute("DELETE FROM hr_social_rule");
         jdbcTemplate.execute("DELETE FROM hr_salary_item");
         jdbcTemplate.execute("DELETE FROM hr_salary");
         jdbcTemplate.execute("DELETE FROM hr_attendance");
         jdbcTemplate.execute("DELETE FROM hr_employee");
         jdbcTemplate.execute("DELETE FROM hr_department");
+        // 重建 DEMO 五险一金规则（与 V20 种子一致：社保 10.5%、公积金 5%），工资核算自动接入依赖
+        jdbcTemplate.execute("INSERT INTO hr_social_rule (id, company_code, social_type, base_floor, base_ceiling,"
+                + " personal_rate, company_rate, effective_month, deleted) VALUES "
+                + "(800001, 'DEMO', 'PENSION', 4800, 24000, 0.0800, 0.1600, '2026-09', 0),"
+                + "(800002, 'DEMO', 'MEDICAL', 4800, 24000, 0.0200, 0.0800, '2026-09', 0),"
+                + "(800003, 'DEMO', 'UNEMPLOYMENT', 4800, 24000, 0.0050, 0.0050, '2026-09', 0),"
+                + "(800004, 'DEMO', 'INJURY', 4800, 24000, 0.0000, 0.0040, '2026-09', 0),"
+                + "(800005, 'DEMO', 'MATERNITY', 4800, 24000, 0.0000, 0.0080, '2026-09', 0),"
+                + "(800006, 'DEMO', 'HOUSING_FUND', 2000, 30000, 0.0500, 0.0500, '2026-09', 0)");
         deptId = hrService.createDepartment(COMPANY, dept("财务部"));
         empId = hrService.createEmployee(COMPANY, emp("H001", "张三", deptId));
     }
@@ -126,10 +137,10 @@ class HrServiceTest {
         int n = salaryService.calculate(COMPANY, 2026, 1, empId);
         assertThat(n).isEqualTo(1);
         HrSalary s = salaryOf(2026, 1);
-        // 累计应纳税所得额 = 20000 - 5000 - 2000 = 13000 → 3% → 390
-        assertThat(s.getTax()).isEqualByComparingTo("390.00");
-        // 实发 = 20000 - 2000(社保) - 390 = 17610
-        assertThat(s.getNetPay()).isEqualByComparingTo("17610.00");
+        // 2026-01 无规则 → 社保公积金 0；累计应纳税所得额 = 20000 - 5000 = 15000 → 3% → 450
+        assertThat(s.getTax()).isEqualByComparingTo("450.00");
+        // 实发 = 20000 - 450 = 19550
+        assertThat(s.getNetPay()).isEqualByComparingTo("19550.00");
         assertThat(s.getStatus()).isEqualTo(HrSalary.STATUS_DRAFT);
     }
 
@@ -139,10 +150,10 @@ class HrServiceTest {
         seedSalary(2026, 2, "20000.00", "0", "0", "0", "2000.00", "0");
         salaryService.calculate(COMPANY, 2026, 1, empId);
         salaryService.calculate(COMPANY, 2026, 2, empId);
-        // 1 月：13000×3% = 390
-        // 2 月累计：40000-10000-4000 = 26000 → 780；本期 = 780-390 = 390
-        assertThat(salaryOf(2026, 1).getTax()).isEqualByComparingTo("390.00");
-        assertThat(salaryOf(2026, 2).getTax()).isEqualByComparingTo("390.00");
+        // 1 月：15000×3% = 450
+        // 2 月累计：30000×3% = 900；本期 = 900-450 = 450
+        assertThat(salaryOf(2026, 1).getTax()).isEqualByComparingTo("450.00");
+        assertThat(salaryOf(2026, 2).getTax()).isEqualByComparingTo("450.00");
     }
 
     @Test
@@ -151,10 +162,10 @@ class HrServiceTest {
         seedSalary(2026, 2, "50000.00", "0", "0", "0", "5000.00", "0");
         salaryService.calculate(COMPANY, 2026, 1, empId);
         salaryService.calculate(COMPANY, 2026, 2, empId);
-        // 1 月：50000-5000-5000 = 40000 → 40000×10%-2520 = 1480
-        // 2 月累计：100000-10000-10000 = 80000 → 80000×10%-2520 = 5480；本期 = 5480-1480 = 4000
-        assertThat(salaryOf(2026, 1).getTax()).isEqualByComparingTo("1480.00");
-        assertThat(salaryOf(2026, 2).getTax()).isEqualByComparingTo("4000.00");
+        // 无规则社保0：1 月 45000×10%-2520 = 1980
+        // 2 月累计 90000×10%-2520 = 6480；本期 6480-1980 = 4500
+        assertThat(salaryOf(2026, 1).getTax()).isEqualByComparingTo("1980.00");
+        assertThat(salaryOf(2026, 2).getTax()).isEqualByComparingTo("4500.00");
     }
 
     @Test
@@ -166,7 +177,7 @@ class HrServiceTest {
         salaryService.calculate(COMPANY, 2026, 1, empId); // 幂等：重复核算不累加扣款
         HrSalary s = salaryOf(2026, 1);
         // 缺勤扣款 = 2 × (21750/21.75) = 2 × 1000 = 2000（派生项，不落 other_deduct）
-        // 应税 = (21750-2000) - 5000 = 14750 → 3% = 442.50
+        // 无规则社保0：应税 = (21750-2000) - 5000 = 14750 → 3% = 442.50
         assertThat(s.getOtherDeduct()).isEqualByComparingTo("0.00");
         assertThat(s.getTax()).isEqualByComparingTo("442.50");
         // 实发 = 21750 - 2000 - 442.50 = 19307.50
@@ -181,7 +192,7 @@ class HrServiceTest {
         // 复核后重算：不得覆盖状态/金额
         salaryService.calculate(COMPANY, 2026, 1, empId);
         assertThat(salaryOf(2026, 1).getStatus()).isEqualTo(HrSalary.STATUS_CONFIRMED);
-        assertThat(salaryOf(2026, 1).getTax()).isEqualByComparingTo("390.00");
+        assertThat(salaryOf(2026, 1).getTax()).isEqualByComparingTo("450.00");
     }
 
     @Test
@@ -222,7 +233,7 @@ class HrServiceTest {
 
         // admin 演示放行
         HrSalary adminSlip = salaryService.slip(COMPANY, id, 1001L, "admin");
-        assertThat(adminSlip.getNetPay()).isEqualByComparingTo("17610.00");
+        assertThat(adminSlip.getNetPay()).isEqualByComparingTo("19550.00");
     }
 
     // ==================== 工具 ====================
