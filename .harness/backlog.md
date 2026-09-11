@@ -43,6 +43,7 @@
 | H1 | 部门/员工档案（工号唯一/离职停用/数据权限） | GET/POST /hr/department、/hr/employee、PUT /hr/employee/{id}/status | hr:employee:add/edit（HR） | ✅ Gate 15 |
 | H2 | 考勤（月度/批量导入/供工资取数） | GET/POST /hr/attendance、POST /hr/attendance/import | hr:attendance:edit（HR） | ✅ Gate 15 |
 | H3 | 工资核算与工资条（累计预扣个税/流程/工资条本人可见） | POST /salary/calculate、GET /salary/list、POST /salary/{id}/submit、/approve、/pay；GET /salary/{id}/slip | 核算(HR)/复核(财务)/slip(本人) | ✅ Gate 15 |
+| H4 | 五险一金智能核算（规则配置化/基数上下限 clamp/个人单位自动计算/工资核算自动接入） | GET/POST /hr/social/rule、DELETE /hr/social/rule/{id}、POST /hr/social/calculate、GET /hr/social/detail/page | hr:social:list/save/del/calculate（HR） | ✅ 批次A PR#40 |
 
 ## 公共支撑（com.finance.workflow + framework）
 
